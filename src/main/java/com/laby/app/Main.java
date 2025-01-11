@@ -31,5 +31,7 @@ public class Main extends Application {
         stage.setTitle("SRF");
         stage.setScene(scene);
         stage.show();
+        //TODO scene manager??
+        //https://www.youtube.com/watch?v=RifjriAxbw8
     }
 }

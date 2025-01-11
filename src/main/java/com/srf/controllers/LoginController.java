@@ -1,9 +1,12 @@
 package com.srf.controllers;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import com.laby.services.AuthenticationService;
+import com.laby.app.Main;
 
 public class LoginController {
     public TextField usernameTextField;
@@ -12,8 +15,13 @@ public class LoginController {
     public Button registerButton;
 
     public void onLogInButton(ActionEvent actionEvent) {
+        //TODO polaczyc z logowaniem
+        //AuthenticationService.login(usernameTextField, passwordField);
+        //nie dziala z jakiegos powodu
     }
 
+    @FXML
     public void onRegisterButton(ActionEvent actionEvent) {
+        //TODO polaczyc ze zmiana sceny
     }
 }

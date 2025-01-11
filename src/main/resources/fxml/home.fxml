@@ -1,14 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.laby.controllers.HomeController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.laby.controllers.HomeController">
+   <children>
+      <VBox prefHeight="400.0" prefWidth="600.0" spacing="10.0">
+         <children>
+            <HBox prefHeight="15.0" prefWidth="500.0">
+               <children>
+                  <TextField fx:id="SearchTextField" prefWidth="500.0" />
+                  <Button fx:id="SearchButton" mnemonicParsing="false" onAction="#onSearchButton" text="Search" />
+               </children>
+            </HBox>
+            <Label text="Your personal recommednations" />
+            <Accordion>
+              <panes>
+                <TitledPane animated="false" text="Movie 1">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="400.0">
+                           <children>
+                              <HBox prefHeight="40.0" prefWidth="400.0" spacing="10.0">
+                                 <children>
+                                    <Label text="Your Rating" />
+                                    <Slider fx:id="RatingSlider" />
+                                    <Button mnemonicParsing="false" text="Rate" fx:id="RateButton" onAction="#onRateButton"/>
+                                 </children>
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding></HBox>
+                           </children>
+                    </AnchorPane>
+                  </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Movie 2">
+                  <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="400.0">
+                          <children>
+                              <HBox prefHeight="40.0" prefWidth="400.0" spacing="10.0">
+                                  <children>
+                                      <Label text="Your Rating" />
+                                      <Slider />
+                                  </children>
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding></HBox>
+                          </children>
+                      </AnchorPane>
+                  </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Movie 3">
+                  <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="400.0">
+                          <children>
+                              <HBox prefHeight="40.0" prefWidth="400.0" spacing="10.0">
+                                  <children>
+                                      <Label text="Your Rating" />
+                                      <Slider />
+                                  </children>
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding></HBox>
+                          </children>
+                      </AnchorPane>
+                  </content>
+                </TitledPane>
+              </panes>
+            </Accordion>
+            <Button mnemonicParsing="false" text="Refresh" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </children>
 </AnchorPane>

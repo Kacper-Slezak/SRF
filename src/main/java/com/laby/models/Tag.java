@@ -1,5 +1,10 @@
 package com.laby.models;
 
+/**
+ * Reprezentuje tag przypisany do filmu przez użytkownika.
+ * Tagi są używane do kategoryzacji i lepszego dopasowania rekomendacji.
+ */
+
 public class Tag {
     private int userId;
     private int movieId;
@@ -33,7 +38,13 @@ public class Tag {
     }
 
     public void setTag(String tag) {
-        this.tag = tag;
+        this.tag = tag.toLowerCase().trim();
+    }
+    public String toString() {
+        return "Tag{" +
+                "movieId=" + movieId +
+                ", tag='" + tag + '\'' +
+                '}';
     }
 }
 

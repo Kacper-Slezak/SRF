@@ -1,5 +1,10 @@
 package com.laby.models;
 
+/**
+ * Reprezentuje film w systemie rekomendacji.
+ * Zawiera podstawowe informacje o filmie oraz metadane.
+ */
+
 
 public class Movie {
     private int id;
@@ -35,6 +40,14 @@ public class Movie {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", genre='" + genre + '\'' +
+                '}';
     }
 }
 

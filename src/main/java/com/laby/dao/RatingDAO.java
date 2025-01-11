@@ -21,8 +21,7 @@ public class RatingDAO {
                 ratings.add(new Rating(
                         resultSet.getInt("user_id"),
                         resultSet.getInt("movie_id"),
-                        resultSet.getDouble("rating"),
-                        resultSet.getInt("timestamp")
+                        resultSet.getDouble("rating")
                 ));
             }
         }
@@ -30,12 +29,11 @@ public class RatingDAO {
     }
 
     public void addRating(Rating rating) throws SQLException {
-        String sql = "INSERT INTO ratings (user_id, movie_id, rating, timestamp) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO ratings (user_id, movie_id, rating) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, rating.getUserId());
             statement.setInt(2, rating.getMovieId());
             statement.setDouble(3, rating.getRating());
-            statement.setInt(4, rating.getTimestamp());
             statement.executeUpdate();
         }
     }

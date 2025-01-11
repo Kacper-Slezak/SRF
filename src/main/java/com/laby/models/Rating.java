@@ -6,11 +6,10 @@ public class Rating {
     private double rating;
     private int timestamp;
 
-    public Rating(int userId, int movieId, double rating, int timestamp) {
+    public Rating(int userId, int movieId, double rating) {
         this.userId = userId;
         this.movieId = movieId;
         this.rating = rating;
-        this.timestamp = timestamp;
     }
 
     // Gettery i settery
@@ -36,14 +35,6 @@ public class Rating {
 
     public void setRating(double rating) {
         this.rating = rating;
-    }
-
-    public int getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
     }
 }
 

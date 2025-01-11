@@ -18,7 +18,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         //TODO naprawic ladowanie logowania
         //mam identycznie jak w samochodzie i tam tak dziala, co jest nie tak??
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/home.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 400, 600);
         stage.setTitle("SRF");

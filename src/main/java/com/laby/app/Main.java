@@ -25,4 +25,11 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
     }
+    public void Login(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/login.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 400, 600);
+        stage.setTitle("SRF");
+        stage.setScene(scene);
+        stage.show();
+    }
 }

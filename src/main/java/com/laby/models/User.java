@@ -27,15 +27,6 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    /**
-     * Konstruktor bez identyfikatora (przydatny do tworzenia nowych użytkowników przed zapisaniem do bazy).
-     * @param username Nazwa użytkownika
-     * @param passwordHash Zahashowane hasło użytkownika
-     */
-    public User(String username, String passwordHash) {
-        this.username = username;
-        this.passwordHash = passwordHash;
-    }
 
     // Gettery i settery
     public int getId() {

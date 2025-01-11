@@ -5,6 +5,9 @@ import com.srf.models.Rating;
 import javafx.concurrent.Task;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -61,11 +64,7 @@ public class RecommendationService {
                     // Pobierz oceny
                     updateProgress(20, 100);
                     List<Rating> ratings;
-                    try {
-                        ratings = ratingDAO.getAllRatings();
-                    } catch (SQLException e) {
-                        throw new RuntimeException("Błąd podczas pobierania ocen z bazy danych.", e);
-                    }
+                    ratings = ratingDAO.getAllRatings();
 
                     // Przygotuj macierz ocen
                     updateProgress(40, 100);

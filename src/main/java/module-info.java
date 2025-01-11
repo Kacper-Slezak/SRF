@@ -3,14 +3,12 @@ module com.lab.srf {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
-    requires com.dlsc.formsfx;
-    requires net.synedra.validatorfx;
-    requires org.kordamp.ikonli.javafx;
+    requires jbcrypt;
+    requires java.sql;
+    requires ejml.simple;
 
     opens com.srf to javafx.fxml;
-    exports com.srf;
     exports com.srf.controllers;
-    opens com.srf.controllers to javafx.fxml;
     exports com.srf.app;
     opens com.srf.app to javafx.fxml;
     exports com.srf.dao;

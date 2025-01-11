@@ -1,4 +1,4 @@
-package com.laby.controllers;
+package com.srf.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

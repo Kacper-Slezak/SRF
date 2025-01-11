@@ -1,8 +1,8 @@
 package Services;
 
-import com.laby.services.RecommendationService;
-import com.laby.dao.RatingDAO;
-import com.laby.models.Rating;
+import com.srf.services.RecommendationService;
+import com.srf.dao.RatingDAO;
+import com.srf.models.Rating;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;

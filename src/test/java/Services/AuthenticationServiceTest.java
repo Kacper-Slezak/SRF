@@ -1,9 +1,9 @@
 // AuthenticationServiceTest.java
 package Services;
 
-import com.laby.services.AuthenticationService;
-import com.laby.dao.UserDAO;
-import com.laby.models.User;
+import com.srf.services.AuthenticationService;
+import com.srf.dao.UserDAO;
+import com.srf.models.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;

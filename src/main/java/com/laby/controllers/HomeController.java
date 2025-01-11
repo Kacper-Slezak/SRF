@@ -77,6 +77,6 @@ public class HomeController {
         refresh(true);
     }
     public void onRating(ActionEvent actionEvent) {
-
+        //TODO powiazac z ustawieniem oceny
     }
 }

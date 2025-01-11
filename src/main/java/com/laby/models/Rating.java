@@ -1,15 +1,16 @@
 package com.laby.models;
 
 public class Rating {
-    private int userId; // ID użytkownika, który wystawił ocenę
-    private int movieId; // ID filmu, który został oceniony
-    private double score; // Ocena (np. w skali 1-10)
+    private int userId;
+    private int movieId;
+    private double rating;
+    private int timestamp;
 
-    // Konstruktor
-    public Rating(int userId, int movieId, double score) {
+    public Rating(int userId, int movieId, double rating, int timestamp) {
         this.userId = userId;
         this.movieId = movieId;
-        this.score = score;
+        this.rating = rating;
+        this.timestamp = timestamp;
     }
 
     // Gettery i settery
@@ -29,21 +30,20 @@ public class Rating {
         this.movieId = movieId;
     }
 
-    public double getScore() {
-        return score;
+    public double getRating() {
+        return rating;
     }
 
-    public void setScore(double score) {
-        this.score = score;
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
-    // Metoda toString()
-    @Override
-    public String toString() {
-        return "Rating{" +
-                "userId=" + userId +
-                ", movieId=" + movieId +
-                ", score=" + score +
-                '}';
+    public int getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(int timestamp) {
+        this.timestamp = timestamp;
     }
 }
+

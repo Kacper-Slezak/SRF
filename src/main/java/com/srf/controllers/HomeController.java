@@ -78,5 +78,6 @@ public class HomeController {
     }
     public void onRating(ActionEvent actionEvent) {
         //TODO powiazac z ustawieniem oceny
+        //Listener na rating
     }
 }

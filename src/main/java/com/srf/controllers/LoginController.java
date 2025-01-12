@@ -5,8 +5,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import com.laby.services.AuthenticationService;
-import com.laby.app.Main;
+import com.srf.services.AuthenticationService;
+import com.srf.app.Main;
 
 public class LoginController {
     public TextField usernameTextField;

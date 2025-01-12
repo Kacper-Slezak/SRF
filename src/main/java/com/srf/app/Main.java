@@ -1,4 +1,4 @@
-package com.laby.app;
+package com.srf.app;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

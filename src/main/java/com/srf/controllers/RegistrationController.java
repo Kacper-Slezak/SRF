@@ -59,36 +59,21 @@ public class RegistrationController {
         String password = passwordField.getText();
         String repeatPassword = repeatPasswordField.getText();
 
-        // Podstawowa walidacja danych
-        if (username.isEmpty() || password.isEmpty() || repeatPassword.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Please fill in all fields.");
-            return;
-        }
-
-        if (!password.equals(repeatPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Passwords do not match.");
-            return;
-        }
-
         try {
-            User newUser = authenticationService.register(username, password);
+            // Wywołanie logiki rejestracji w serwisie
+            User newUser = authenticationService.register(username, password, repeatPassword);
             showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
             switchToLoginScene(actionEvent);
-
 
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to database. Please try again later.");
-        } /*catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "System Error",
-                    "Could not load the login screen. Please restart the application.");
-        }*/
+        }
     }
+
 
     public void switchToLoginScene(ActionEvent event) throws IOException {
         FXMLLoader root = new FXMLLoader(getClass().getResource("/com/srf/login.fxml"));

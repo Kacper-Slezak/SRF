@@ -18,9 +18,9 @@ public class AuthenticationService {
         this.userDAO = userDAO;
     }
 
-    public User register(String username, String password) throws SQLException {
+    public User register(String username, String password, String repeatPassword) throws SQLException {
         // Walidacja danych
-        validateRegistrationData(username, password);
+        validateRegistrationData(username, password, repeatPassword);
 
         // Sprawdź czy użytkownik już istnieje
         if (userDAO.findByUsername(username).isPresent()) {
@@ -40,6 +40,9 @@ public class AuthenticationService {
     }
 
     public Optional<User> login(String username, String password) throws SQLException {
+        // Walidacja danych wejściowych
+        validateLoginData(username, password);
+
         Optional<User> userOpt = userDAO.findByUsername(username);
 
         if (userOpt.isPresent()) {
@@ -55,6 +58,16 @@ public class AuthenticationService {
         return Optional.empty();
     }
 
+    private void validateLoginData(String username, String password) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty.");
+        }
+
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty.");
+        }
+    }
+
     public void logout(String sessionId) {
         activeSessions.remove(sessionId);
     }
@@ -63,13 +76,21 @@ public class AuthenticationService {
         return Optional.ofNullable(activeSessions.get(sessionId));
     }
 
-    private void validateRegistrationData(String username, String password) {
-        if (username == null || username.trim().length() < 3) {
-            throw new IllegalArgumentException("Username must be at least 3 characters long");
+    private void validateRegistrationData(String username, String password, String repeatPassword) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty.");
         }
 
-        if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters long");
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty.");
+        }
+
+        if (repeatPassword == null || repeatPassword.isEmpty()) {
+            throw new IllegalArgumentException("Repeat password cannot be empty.");
+        }
+
+        if (!password.equals(repeatPassword)) {
+            throw new IllegalArgumentException("Passwords do not match.");
         }
     }
 

@@ -30,7 +30,7 @@ public class LoginController {
     public Button registerButton;
 
     private Stage stage;
-    private Scene scene;
+    private Scene       scene;
     private AuthenticationService authenticationService;
 
     @FXML
@@ -45,38 +45,40 @@ public class LoginController {
     }
 
     @FXML
-   public void onLogInButton(ActionEvent actionEvent) throws IOException {
-       if (authenticationService == null) {
-           showAlert(Alert.AlertType.ERROR, "System Error",
-                   "System initialization failed. Please restart the application.");
-           return;
-       }
+    public void onLogInButton(ActionEvent actionEvent) throws IOException {
+        // Sprawdzenie, czy serwis został poprawnie zainicjalizowany
+        if (authenticationService == null) {
+            showAlert(Alert.AlertType.ERROR, "System Error",
+                    "System initialization failed. Please restart the application.");
+            return;
+        }
 
-       String username = usernameTextField.getText();
-       String password = passwordField.getText();
+        // Pobranie danych z pól tekstowych
+        String username = usernameTextField.getText();
+        String password = passwordField.getText();
 
-       if (username.isEmpty() || password.isEmpty()) {
-           showAlert(Alert.AlertType.ERROR, "Login Error",
-                   "Please fill in all fields.");
-           return;
-       }
-       try {
-           Optional<User> user = authenticationService.login(username, password);
-           if (user.isPresent()) {
-               showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful!");
-               switchScene(actionEvent, "home");
-           }
-           else{
-               showAlert(Alert.AlertType.ERROR, "Login Error", "no user found");
-           }
+        try {
+            // Próba logowania za pomocą serwisu
+            Optional<User> user = authenticationService.login(username, password);
 
-       } catch (IllegalArgumentException e) {
-           showAlert(Alert.AlertType.ERROR, "Login Error", e.getMessage());
-       } catch (SQLException e) {
-           showAlert(Alert.AlertType.ERROR, "Database Error",
-                   "Could not connect to database. Please try again later.");
-       }
-   }
+            if (user.isPresent()) {
+                // Sukces: przekierowanie do ekranu głównego
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful!");
+                switchScene(actionEvent, "home");
+            } else {
+                // Nieudane logowanie: brak użytkownika lub nieprawidłowe hasło
+                showAlert(Alert.AlertType.ERROR, "Login Error", "Invalid username or password.");
+            }
+        } catch (IllegalArgumentException e) {
+            // Obsługa błędów walidacji z serwisu
+            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (SQLException e) {
+            // Obsługa problemów z bazą danych
+            showAlert(Alert.AlertType.ERROR, "Database Error",
+                    "Could not connect to database. Please try again later.");
+        }
+    }
+
 
     @FXML
     public void onRegisterButton(ActionEvent actionEvent) throws IOException {

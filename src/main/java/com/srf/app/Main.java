@@ -15,21 +15,12 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         //TODO naprawic ladowanie logowania
-        //mam identycznie jak w samochodzie i tam tak dziala, co jest nie tak??
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/home.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 400, 600);
+        FXMLLoader root = new FXMLLoader(getClass().getResource("com/srf/home.fxml"));
+        Scene homeScene = new Scene(root.load(), 400, 600);
+        stage.setScene(homeScene);
+
         stage.setTitle("SRF");
-        stage.setScene(scene);
         stage.show();
-    }
-    public void Login(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/login.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 400, 600);
-        stage.setTitle("SRF");
-        stage.setScene(scene);
-        stage.show();
-        //TODO scene manager??
-        //https://www.youtube.com/watch?v=RifjriAxbw8
     }
 }

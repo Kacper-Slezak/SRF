@@ -6,6 +6,7 @@ module com.lab.srf {
     requires jbcrypt;
     requires java.sql;
     requires ejml.simple;
+    requires java.desktop;
 
     opens com.srf to javafx.fxml;
     exports com.srf.controllers;

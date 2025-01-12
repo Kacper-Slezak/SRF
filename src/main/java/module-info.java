@@ -5,6 +5,7 @@ module com.srf {
     requires jbcrypt;
     requires java.sql;
     requires ejml.simple;
+    requires java.desktop;
 
     // Since your Main class is in com.srf.app
     opens com.srf.app to javafx.fxml;

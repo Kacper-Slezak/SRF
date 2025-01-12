@@ -14,9 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        //TODO naprawic ladowanie logowania
-
-        FXMLLoader root = new FXMLLoader(getClass().getResource("com/srf/home.fxml"));
+        FXMLLoader root = new FXMLLoader(getClass().getResource("/com/srf/home.fxml"));
         Scene homeScene = new Scene(root.load(), 400, 600);
         stage.setScene(homeScene);
 

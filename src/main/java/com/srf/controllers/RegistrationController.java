@@ -2,6 +2,9 @@ package com.srf.controllers;
 
 import com.srf.models.User;
 import com.srf.services.AuthenticationService;
+import com.srf.dao.UserDAO;
+import com.srf.utils.DatabaseConnection;
+import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -9,34 +12,57 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class RegistrationController {
+    @FXML
     public TextField usernameTextField;
+
+    @FXML
     public PasswordField passwordField;
+
+    @FXML
     public PasswordField repeatPasswordField;
+
+    @FXML
     public Button registerButton;
 
     private AuthenticationService authenticationService;
 
-    // Konstuktor
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
+    @FXML
+    public void initialize() {
+        try {
+            UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
+            this.authenticationService = new AuthenticationService(userDAO);
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Database Error",
+                    "Could not connect to database. Please try again later.");
+        }
     }
 
+    @FXML
     public void onRegisterButton(ActionEvent actionEvent) {
+        if (authenticationService == null) {
+            showAlert(Alert.AlertType.ERROR, "System Error",
+                    "System initialization failed. Please restart the application.");
+            return;
+        }
+
         String username = usernameTextField.getText();
         String password = passwordField.getText();
         String repeatPassword = repeatPasswordField.getText();
 
-        // Validacja tak podstawowa danych
+        // Podstawowa walidacja danych
         if (username.isEmpty() || password.isEmpty() || repeatPassword.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error", "Please fill in all fields.");
+            showAlert(Alert.AlertType.ERROR, "Registration Error",
+                    "Please fill in all fields.");
             return;
         }
 
         if (!password.equals(repeatPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error", "Passwords do not match.");
+            showAlert(Alert.AlertType.ERROR, "Registration Error",
+                    "Passwords do not match.");
             return;
         }
 
@@ -45,20 +71,18 @@ public class RegistrationController {
             showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
 
-            // Ta scena, zamkya okno
-            ((Stage) registerButton.getScene().getWindow()).close();
+            // TODO Przełącz na scenę logowania
 
-            /* I tu trzeba otworzyć logowanie?
-           cos takeigo mi chat wypluł:
-           SceneManager.switchToLogin();
-             */
 
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to database. Please try again later.");
-        }
+        } /*catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "System Error",
+                    "Could not load the login screen. Please restart the application.");
+        }*/
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {

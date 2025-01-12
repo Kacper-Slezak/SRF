@@ -14,8 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        //TODO Działa
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/registration.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 400, 600);
         stage.setTitle("SRF");

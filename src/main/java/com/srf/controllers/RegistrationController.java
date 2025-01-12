@@ -76,7 +76,6 @@ public class RegistrationController {
             User newUser = authenticationService.register(username, password);
             showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
-
             switchToLoginScene(actionEvent);
 
 

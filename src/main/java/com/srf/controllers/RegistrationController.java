@@ -4,10 +4,9 @@ import com.srf.models.User;
 import com.srf.services.AuthenticationService;
 import com.srf.dao.UserDAO;
 import com.srf.utils.DatabaseConnection;
+import com.srf.utils.SceneManager;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -48,7 +47,7 @@ public class RegistrationController {
     }
 
     @FXML
-    public void onRegisterButton(ActionEvent actionEvent) throws IOException {
+    public void onRegisterButton(ActionEvent actionEvent, final SceneManager sceneManager) throws IOException {
         if (authenticationService == null) {
             showAlert(Alert.AlertType.ERROR, "System Error",
                     "System initialization failed. Please restart the application.");
@@ -76,8 +75,7 @@ public class RegistrationController {
             User newUser = authenticationService.register(username, password);
             showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
-
-            switchToLoginScene(actionEvent);
+            sceneManager.switchToLoginScene(actionEvent);
 
 
         } catch (IllegalArgumentException e) {
@@ -91,13 +89,6 @@ public class RegistrationController {
         }*/
     }
 
-    public void switchToLoginScene(ActionEvent event) throws IOException {
-        FXMLLoader root = new FXMLLoader(getClass().getResource("/com/srf/login.fxml"));
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root.load());
-        stage.setScene(scene);
-        stage.show();
-    }
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);

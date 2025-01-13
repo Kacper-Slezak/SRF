@@ -3,10 +3,10 @@ package com.srf.controllers;
 import com.srf.dao.UserDAO;
 import com.srf.models.User;
 import com.srf.utils.DatabaseConnection;
+import com.srf.utils.SceneManager;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -32,6 +32,7 @@ public class LoginController {
     private Stage stage;
     private Scene scene;
     private AuthenticationService authenticationService;
+    private User currentUser;
 
     @FXML
     public void initialize() {
@@ -45,7 +46,20 @@ public class LoginController {
     }
 
     @FXML
-   public void onLogInButton(ActionEvent actionEvent) throws IOException {
+    public void initManager(final SceneManager sceneManager) {
+        logInButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent event) {
+                try {
+                    onLogInButton(event, sceneManager);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @FXML
+   public void onLogInButton(ActionEvent actionEvent, final SceneManager sceneManager) throws IOException {
        if (authenticationService == null) {
            showAlert(Alert.AlertType.ERROR, "System Error",
                    "System initialization failed. Please restart the application.");
@@ -64,7 +78,8 @@ public class LoginController {
            Optional<User> user = authenticationService.login(username, password);
            if (user.isPresent()) {
                showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful!");
-               switchScene(actionEvent, "home");
+               int sessionId = currentUser.getId();
+               sceneManager.switchToHomeScene(actionEvent, sessionId);
            }
            else{
                showAlert(Alert.AlertType.ERROR, "Login Error", "no user found");
@@ -79,21 +94,8 @@ public class LoginController {
    }
 
     @FXML
-    public void onRegisterButton(ActionEvent actionEvent) throws IOException {
-        switchScene(actionEvent, "registration");
-    }
-
-    public void switchScene(ActionEvent event, String sceneName) throws IOException {
-        sceneName = "/com/srf/" + sceneName + ".fxml";
-        try {
-            FXMLLoader root = new FXMLLoader(getClass().getResource(sceneName));
-            stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            scene = new Scene(root.load());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
-        }
+    public void onRegisterButton(ActionEvent actionEvent, final SceneManager sceneManager) throws IOException {
+        sceneManager.switchToRegisterScene(actionEvent);
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {

@@ -15,7 +15,7 @@
       <TextField fx:id="usernameTextField"/>
       <Label text="Password"/>
       <PasswordField fx:id="passwordField"/>
-      <Button fx:id="logInButton" mnemonicParsing="false" onAction="#onLogInButton" text="Log in"/>
+      <Button fx:id="logInButton" mnemonicParsing="false" text="Log in"/>
       <Button fx:id="registerButton" mnemonicParsing="false" onAction="#onRegisterButton" text="Register"/>
    </VBox>
 </AnchorPane>

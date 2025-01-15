@@ -1,6 +1,8 @@
 package com.srf.controllers;
 
+import com.srf.models.User;
 import com.srf.services.RecommendationService;
+import com.srf.utils.DataSingleton;
 import com.srf.utils.SceneManager;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -32,18 +34,18 @@ public class HomeController {
     public VBox ListVbox;
 
     private RecommendationService recommendationService;
-    private int currentSessionID;
     private ArrayList<Number> ratingsArrayList = new ArrayList<>();
+    private User currentUser;
 
-    public void initSessionID(final SceneManager sceneManager, int sessionID) {
-        currentSessionID = sessionID;
-    }
+    DataSingleton data = DataSingleton.getInstance();
 
     @FXML
     public void refresh(boolean searchOrRecommend) {
         int amountOfMovies = 5;
 
         //TODO wpisać oceny poprzedniego refresha do bazy danych
+
+        currentUser = data.getUser();
 
         ratingsArrayList.clear();
 
@@ -52,7 +54,7 @@ public class HomeController {
 
         if (searchOrRecommend) {
             description.setText("Your personal recommendations");
-            Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentSessionID, amountOfMovies);
+            Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
         }
         else{
             description.setText("Search results");

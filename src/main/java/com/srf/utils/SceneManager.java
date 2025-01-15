@@ -1,64 +1,78 @@
 package com.srf.utils;
 
-import com.srf.controllers.HomeController;
+import com.srf.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class SceneManager {
-    private Scene scene;
 
-    public SceneManager(Scene scene) {
-        this.scene = scene;
-    }
-    public void switchToRegisterScene(ActionEvent event) throws IOException {
-        String sceneName = "/com/srf/registration.fxml";
-        switchScene(event, sceneName);
-    }
-    public void switchToHomeScene(ActionEvent event, int sessionId) throws IOException {
-        String sceneName = "/com/srf/home.fxml";
+    private static SceneManager instance;
+
+    AlertManager alertManager = AlertManager.getInstance();
+
+    public void showPrimaryScene() {
+        String sceneName = "/com/srf/login.fxml";
         try {
-            FXMLLoader root = new FXMLLoader(getClass().getResource(sceneName));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            scene = new Scene(root.load());
-            stage.setScene(scene);
+            Stage stage = new Stage();
+            Parent root = FXMLLoader.load(getClass().getResource(sceneName));
+
+            stage.setScene(new Scene(root));
             stage.setTitle("SRF");
-            HomeController controller = root.<HomeController>getController();
-            controller.initSessionID(this, sessionId);
             stage.show();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
+            e.printStackTrace();
+            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
         }
     }
 
+    public void switchToHomeScene(ActionEvent event) throws IOException {
+        String sceneName = "/com/srf/home.fxml";
+        switchScene(event, sceneName);
+    }
     public void switchToLoginScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/login.fxml";
+        switchScene(event, sceneName);
+    }
+    public void switchToRegistrationScene(ActionEvent event) throws IOException {
+        String sceneName = "/com/srf/registration.fxml";
         switchScene(event, sceneName);
     }
 
     public void switchScene(ActionEvent event, String sceneName) throws IOException {
         try {
-            FXMLLoader root = new FXMLLoader(getClass().getResource(sceneName));
+            Parent root = FXMLLoader.load(getClass().getResource(sceneName));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            scene = new Scene(root.load());
-            stage.setScene(scene);
-            stage.show();
+
+            stage.getScene().setRoot(root);
             stage.show();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
+            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
         }
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+    public void switchScene(ActionEvent event, String sceneName, User user) throws IOException {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(sceneName));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            stage.setUserData(user);
+            stage.getScene().setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
+        }
+    }
+
+    public static SceneManager getInstance() {
+        if (instance == null) {
+            instance = new SceneManager();
+        }
+        return instance;
     }
 }

@@ -50,11 +50,11 @@ public class HomeController {
 
         ListVbox.getChildren().clear();
 
-        Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
-
         Label description = new Label();
         description.setText("Your personal recommendations");
         ListVbox.getChildren().add(description);
+
+        Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
 
         for (int i = 0; i < amountOfMovies; i++){
             HBox hBox = new HBox();
@@ -78,15 +78,13 @@ public class HomeController {
         DBUpdate();
 
         ListVbox.getChildren().clear();
-        Label description = new Label();
 
+        Label description = new Label();
         description.setText("Search results");
+        ListVbox.getChildren().add(description);
 
         List<Movie> searchedMoviesList = searchService.searchMoviesByTitle(SearchTextField.getText());
 
-        ListVbox.getChildren().add(description);
-
-        MovieDAO searchedMovieDAO;
         for (int i = 0; i < amountOfMovies; i++){
             HBox hBox = new HBox();
             hBox.setSpacing(10);
@@ -98,7 +96,6 @@ public class HomeController {
             //TODO powiazac z rezultatem wyszukiwania
 
             hBox.getChildren().addAll(title, genre, rating);
-
             ListVbox.getChildren().add(hBox);
 
             newListener(rating);

@@ -16,26 +16,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.Rating;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HomeController {
     @FXML
-    public Button SearchButton;
-    @FXML
-    public org.controlsfx.control.Rating Rating;
-    @FXML
     public TextField SearchTextField;
     @FXML
-    public Label TitleLabel;
-    @FXML
-    public Label GenreLabel;
+    public Button SearchButton;
     @FXML
     public Button RefreshButton;
     @FXML
     public VBox ListVbox;
     @FXML
-    public Label UserName;
+    public Label NameLabel;
 
     private RecommendationService recommendationService;
     private SearchService searchService;
@@ -45,9 +38,10 @@ public class HomeController {
 
     DataSingleton data = DataSingleton.getInstance();
 
-    private HomeController() {
+    @FXML
+    public void initialize() {
         currentUser = data.getUser();
-        UserName.setText(currentUser.getUsername());
+        NameLabel.setText(currentUser.getUsername());
     }
 
     @FXML

@@ -1,9 +1,11 @@
 package com.srf.controllers;
 
+import com.srf.dao.MovieDAO;
+import com.srf.models.Movie;
 import com.srf.models.User;
 import com.srf.services.RecommendationService;
+import com.srf.services.SearchService;
 import com.srf.utils.DataSingleton;
-import com.srf.utils.SceneManager;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,57 +16,45 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.Rating;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HomeController {
     @FXML
-    public Button SearchButton;
-    @FXML
-    public org.controlsfx.control.Rating Rating;
-    @FXML
     public TextField SearchTextField;
     @FXML
-    public Label TitleLabel;
-    @FXML
-    public Label GenreLabel;
+    public Button SearchButton;
     @FXML
     public Button RefreshButton;
     @FXML
     public VBox ListVbox;
+    @FXML
+    public Label NameLabel;
 
     private RecommendationService recommendationService;
-    private ArrayList<Number> ratingsArrayList = new ArrayList<>();
+    private SearchService searchService;
+
     private User currentUser;
+    private int amountOfMovies = 7;
 
     DataSingleton data = DataSingleton.getInstance();
 
     @FXML
-    public void refresh(boolean searchOrRecommend) {
-        int amountOfMovies = 5;
-
-        //TODO wpisać oceny poprzedniego refresha do bazy danych
-
+    public void initialize() {
         currentUser = data.getUser();
+        NameLabel.setText(currentUser.getUsername());
+    }
 
-        ratingsArrayList.clear();
+    @FXML
+    public void onRefreshButton(ActionEvent actionEvent) {
+        DBUpdate();
 
         ListVbox.getChildren().clear();
+
+        Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
+
         Label description = new Label();
-
-        if (searchOrRecommend) {
-            description.setText("Your personal recommendations");
-            Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
-        }
-        else{
-            description.setText("Search results");
-            //TODO uzyc fukcji szukania
-        }
-
+        description.setText("Your personal recommendations");
         ListVbox.getChildren().add(description);
-
-        //TODO ustawić wartości początkowe ratingów
-        // w przypadku wyszukiwania bo chyba system rekomendacji nie wypluje ocenionego juz filmu
 
         for (int i = 0; i < amountOfMovies; i++){
             HBox hBox = new HBox();
@@ -72,33 +62,56 @@ public class HomeController {
 
             Label title = new Label();
             Label genre = new Label();
-            Rating rating = new org.controlsfx.control.Rating();
+            Rating rating = new Rating();
 
-            rating.ratingProperty().addListener((observable, oldValue, newValue) -> {
-                ratingsArrayList.add(newValue);
-            });
+            //TODO powiazac z rezultatem rekomendacji
 
-            if (searchOrRecommend){
-                title.setText("FILM OF THE CENTURY");
-                genre.setText("Adventure");
-                hBox.getChildren().addAll(title, genre, rating);
-                //TODO powiazac z rezultatem rekomendacji
-            }
-            else {
-                title.setText("PIECE OF GARBAGE");
-                genre.setText("Romance");
-                hBox.getChildren().addAll(title, genre, rating);
-                //TODO powiazac z rezultatem wyszukiwania
-            }
+            hBox.getChildren().addAll(title, genre, rating);
             ListVbox.getChildren().add(hBox);
+
+            newListener(rating);
         }
     }
+
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
-        refresh(false);
+        DBUpdate();
+
+        ListVbox.getChildren().clear();
+        Label description = new Label();
+
+        description.setText("Search results");
+
+        List<Movie> searchedMoviesList = searchService.searchMoviesByTitle(SearchTextField.getText());
+
+        ListVbox.getChildren().add(description);
+
+        MovieDAO searchedMovieDAO;
+        for (int i = 0; i < amountOfMovies; i++){
+            HBox hBox = new HBox();
+            hBox.setSpacing(10);
+
+            Label title = new Label();
+            Label genre = new Label();
+            Rating rating = new Rating();
+
+            //TODO powiazac z rezultatem wyszukiwania
+
+            hBox.getChildren().addAll(title, genre, rating);
+
+            ListVbox.getChildren().add(hBox);
+
+            newListener(rating);
+        }
     }
-    @FXML
-    public void onRefreshButton(ActionEvent actionEvent) {
-        refresh(true);
+
+    private void DBUpdate() {
+        //TODO dbupdate
+    }
+
+    private void newListener(Rating rating) {
+        rating.ratingProperty().addListener((observable, oldValue, newValue) -> {
+            //TODO logika listenera NIE MAM POJECIA JAK
+        });
     }
 }

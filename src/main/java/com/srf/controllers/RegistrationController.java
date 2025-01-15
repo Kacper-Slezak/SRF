@@ -56,34 +56,18 @@ public class RegistrationController {
         String password = passwordField.getText();
         String repeatPassword = repeatPasswordField.getText();
 
-        // Podstawowa walidacja danych
-        if (username.isEmpty() || password.isEmpty() || repeatPassword.isEmpty()) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Please fill in all fields.");
-            return;
-        }
-
-        if (!password.equals(repeatPassword)) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Passwords do not match.");
-            return;
-        }
-
         try {
-            User newUser = authenticationService.register(username, password);
+            // Wywołanie logiki rejestracji w serwisie
+            User newUser = authenticationService.register(username, password, repeatPassword);
             alertManager.showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
             sceneManager.switchToLoginScene(actionEvent);
-
 
         } catch (IllegalArgumentException e) {
             alertManager.showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
         } catch (SQLException e) {
             alertManager.showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to database. Please try again later.");
-        } /*catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "System Error",
-                    "Could not load the login screen. Please restart the application.");
-        }*/
+        }
     }
 }

@@ -49,35 +49,36 @@ public class LoginController {
 
     @FXML
     public void onLogInButton(ActionEvent actionEvent) throws IOException {
+        // Sprawdzenie, czy serwis został poprawnie zainicjalizowany
         if (authenticationService == null) {
             alertManager.showAlert(Alert.AlertType.ERROR, "System Error",
                     "System initialization failed. Please restart the application.");
             return;
         }
 
+        // Pobranie danych z pól tekstowych
         String username = usernameTextField.getText();
         String password = passwordField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Login Error",
-                    "Please fill in all fields.");
-            return;
-        }
         try {
+            // Próba logowania za pomocą serwisu
             Optional<User> user = authenticationService.login(username, password);
+
             if (user.isPresent()) {
+                // Sukces: przekierowanie do ekranu głównego
                 alertManager.showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful!");
                 currentUser = user.get();
                 data.setUser(currentUser);
                 sceneManager.switchToHomeScene(actionEvent);
+            } else {
+                // Nieudane logowanie: brak użytkownika lub nieprawidłowe hasło
+                alertManager.showAlert(Alert.AlertType.ERROR, "Login Error", "Invalid username or password.");
             }
-            else{
-                alertManager.showAlert(Alert.AlertType.ERROR, "Login Error", "no user found");
-            }
-
         } catch (IllegalArgumentException e) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Login Error", e.getMessage());
+            // Obsługa błędów walidacji z serwisu
+            alertManager.showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
         } catch (SQLException e) {
+            // Obsługa problemów z bazą danych
             alertManager.showAlert(Alert.AlertType.ERROR,
                     "Database Error",
                     "Could not connect to database. Please try again later.");

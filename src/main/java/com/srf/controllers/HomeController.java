@@ -1,5 +1,10 @@
 package com.srf.controllers;
 
+import com.srf.models.User;
+import com.srf.services.RecommendationService;
+import com.srf.utils.DataSingleton;
+import com.srf.utils.SceneManager;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,8 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.Rating;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeController {
     @FXML
@@ -28,19 +33,38 @@ public class HomeController {
     @FXML
     public VBox ListVbox;
 
+    private RecommendationService recommendationService;
+    private ArrayList<Number> ratingsArrayList = new ArrayList<>();
+    private User currentUser;
+
+    DataSingleton data = DataSingleton.getInstance();
+
     @FXML
     public void refresh(boolean searchOrRecommend) {
+        int amountOfMovies = 5;
+
+        //TODO wpisać oceny poprzedniego refresha do bazy danych
+
+        currentUser = data.getUser();
+
+        ratingsArrayList.clear();
+
         ListVbox.getChildren().clear();
         Label description = new Label();
+
         if (searchOrRecommend) {
             description.setText("Your personal recommendations");
+            Task<List<RecommendationService.MovieRecommendation>> recommendedMovies = recommendationService.generateRecommendationsAsync(currentUser.getId(), amountOfMovies);
         }
         else{
             description.setText("Search results");
+            //TODO uzyc fukcji szukania
         }
+
         ListVbox.getChildren().add(description);
-        int amountOfMovies = 5;
-        ArrayList<Rating> listRatings = new ArrayList<>();
+
+        //TODO ustawić wartości początkowe ratingów
+        // w przypadku wyszukiwania bo chyba system rekomendacji nie wypluje ocenionego juz filmu
 
         for (int i = 0; i < amountOfMovies; i++){
             HBox hBox = new HBox();
@@ -49,9 +73,10 @@ public class HomeController {
             Label title = new Label();
             Label genre = new Label();
             Rating rating = new org.controlsfx.control.Rating();
-            listRatings.add(rating);
-            //title.setFont();
 
+            rating.ratingProperty().addListener((observable, oldValue, newValue) -> {
+                ratingsArrayList.add(newValue);
+            });
 
             if (searchOrRecommend){
                 title.setText("FILM OF THE CENTURY");
@@ -75,9 +100,5 @@ public class HomeController {
     @FXML
     public void onRefreshButton(ActionEvent actionEvent) {
         refresh(true);
-    }
-    public void onRating(ActionEvent actionEvent) {
-        //TODO powiazac z ustawieniem oceny
-        //Listener na rating
     }
 }

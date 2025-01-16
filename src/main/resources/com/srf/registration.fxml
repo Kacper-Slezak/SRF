@@ -29,7 +29,7 @@
             <Insets bottom="20.0" />
          </VBox.margin></Button>
       <Label text="Already have an account?" />
-      <Button mnemonicParsing="false" text="Log in" />
+      <Button fx:id="logInButton" onAction="#onLoginButton" mnemonicParsing="false" text="Log in" />
     </VBox>
 
 </AnchorPane>

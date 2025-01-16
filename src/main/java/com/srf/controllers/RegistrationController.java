@@ -70,4 +70,12 @@ public class RegistrationController {
                     "Could not connect to database. Please try again later.");
         }
     }
+
+    public void onLoginButton(ActionEvent event) throws IOException {
+        try {
+            sceneManager.switchToLoginScene(event);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

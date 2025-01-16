@@ -29,7 +29,12 @@
             <Insets bottom="20.0" />
          </VBox.margin></Button>
       <Label text="Already have an account?" />
-      <Button fx:id="logInButton" onAction="#onLoginButton" mnemonicParsing="false" text="Log in" />
+      <Button fx:id="logInButton" mnemonicParsing="false" onAction="#onLoginButton" text="Log in" />
     </VBox>
+   <Label layoutX="10.0" layoutY="10.0" text="SRF">
+      <font>
+         <Font name="System Bold" size="20.0" />
+      </font>
+   </Label>
 
 </AnchorPane>

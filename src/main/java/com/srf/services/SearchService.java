@@ -3,8 +3,9 @@ package com.srf.services;
 import com.srf.dao.MovieDAO;
 import com.srf.models.Movie;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SearchService {
     private final MovieDAO movieDAO;
@@ -14,23 +15,35 @@ public class SearchService {
     }
 
     /**
-     * Wyszukiwanie filmów według tytułu.
+     * Wyszukiwanie filmów według tytułu lub gatunku.
      *
-     * @param query Fraza wyszukiwania.
+     * @param query Fraza wyszukiwania (może zawierać wiele słów).
      * @return Lista pasujących filmów.
      */
-    public List<Movie> searchMoviesByTitle(String query) {
+    public List<Movie> searchMovies(String query) {
+        List<Movie> matchingMovies = new ArrayList<>();
         try {
-            // Pobranie wszystkich filmów z DAO
+            // Pobierz wszystkie filmy z DAO
             List<Movie> allMovies = movieDAO.getAllMovies();
 
-            // Filtracja filmów na podstawie tytułu (ignorowanie wielkości liter)
-            return allMovies.stream()
-                    .filter(movie -> movie.getTitle().toLowerCase().contains(query.toLowerCase()))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return List.of(); // Zwróć pustą listę w przypadku błędu
+            // Rozdziel zapytanie na słowa kluczowe
+            String[] keywords = query.toLowerCase().split(" ");
+
+            // Filtruj filmy według tytułu lub gatunku
+            for (Movie movie : allMovies) {
+                String title = movie.getTitle().toLowerCase();
+                String genre = movie.getGenre().toLowerCase();
+
+                for (String keyword : keywords) {
+                    if (title.contains(keyword) || genre.contains(keyword)) {
+                        matchingMovies.add(movie);
+                        break; // Unikaj dodawania tego samego filmu wielokrotnie
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Błąd podczas wyszukiwania filmów: " + e.getMessage());
         }
+        return matchingMovies;
     }
 }

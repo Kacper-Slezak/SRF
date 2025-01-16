@@ -38,5 +38,34 @@ public class RatingDAO {
             statement.executeUpdate();
         }
     }
-}
 
+    public Rating findRating(int userId, int movieId) throws SQLException {
+        String sql = "SELECT * FROM ratings WHERE user_id = ? AND movie_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, movieId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new Rating(
+                            resultSet.getInt("user_id"),
+                            resultSet.getInt("movie_id"),
+                            resultSet.getDouble("rating")
+                    );
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    public void updateRating(Rating rating) throws SQLException {
+        String sql = "UPDATE ratings SET rating = ? WHERE user_id = ? AND movie_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setDouble(1, rating.getRating());
+            statement.setInt(2, rating.getUserId());
+            statement.setInt(3, rating.getMovieId());
+            statement.executeUpdate();
+        }
+    }
+
+}

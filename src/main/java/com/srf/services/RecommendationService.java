@@ -3,32 +3,175 @@ package com.srf.services;
 import com.srf.dao.RatingDAO;
 import com.srf.models.Rating;
 import javafx.concurrent.Task;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- * Serwis rekomendacji oparty na metodzie SVD (Singular Value Decomposition).
- * Obsługuje generowanie rekomendacji asynchronicznie oraz korzysta z pamięci podręcznej w celu optymalizacji wydajności.
- */
 public class RecommendationService {
     private final RatingDAO ratingDAO;
     private final Map<Integer, List<MovieRecommendation>> recommendationsCache;
-    private double[][] lastRatingMatrix;
     private long lastUpdateTime;
-    private static final long CACHE_VALIDITY_PERIOD = 15 * 60 * 1000; // 15 minut
+    private static final long CACHE_VALIDITY_PERIOD = 15 * 60 * 1000;
+    private static final int TOP_RECOMMENDATIONS = 100;
+    private static final int MIN_RATINGS_FOR_MOVIE = 3;
+    private static final double MIN_RATING_THRESHOLD = 3.0; // Obniżony próg dla testów
 
     public RecommendationService(RatingDAO ratingDAO) {
         this.ratingDAO = ratingDAO;
         this.recommendationsCache = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Klasa pomocnicza reprezentująca rekomendację filmu.
-     */
+    public Task<List<MovieRecommendation>> generateRecommendationsAsync(int userId, int k) {
+        return new Task<>() {
+            @Override
+            protected List<MovieRecommendation> call() throws Exception {
+                try {
+                    System.out.println("=== Starting recommendation generation for user " + userId + " ===");
+                    updateProgress(0, 100);
+
+                    if (isCacheValid(userId)) {
+                        System.out.println("Using cached recommendations for user " + userId);
+                        updateProgress(100, 100);
+                        return recommendationsCache.get(userId);
+                    }
+
+                    updateProgress(20, 100);
+                    List<Rating> allRatings = ratingDAO.getAllRatings();
+                    System.out.println("Total ratings loaded: " + allRatings.size());
+
+                    Map<Integer, Long> movieRatingCounts = allRatings.stream()
+                            .collect(Collectors.groupingBy(Rating::getMovieId, Collectors.counting()));
+
+                    Set<Integer> validMovieIds = movieRatingCounts.entrySet().stream()
+                            .filter(e -> e.getValue() >= MIN_RATINGS_FOR_MOVIE)
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toSet());
+
+                    List<Rating> filteredRatings = allRatings.stream()
+                            .filter(r -> validMovieIds.contains(r.getMovieId()))
+                            .collect(Collectors.toList());
+
+                    System.out.println("Original movie count: " + movieRatingCounts.size());
+                    System.out.println("Filtered movie count: " + validMovieIds.size());
+                    System.out.println("Filtered ratings count: " + filteredRatings.size());
+
+                    updateProgress(40, 100);
+                    double[][] ratingMatrix = prepareRatingMatrix(filteredRatings, validMovieIds);
+                    System.out.println("Rating matrix prepared: " + ratingMatrix.length + " x " +
+                            (ratingMatrix.length > 0 ? ratingMatrix[0].length : 0));
+
+                    allRatings = null;
+                    filteredRatings = null;
+                    System.gc();
+
+                    updateProgress(60, 100);
+                    int effectiveK = Math.min(k, 20);
+                    System.out.println("Computing SVD with k=" + effectiveK);
+                    double[][] predictedRatings = SVDRecommender.computeSVD(ratingMatrix, effectiveK);
+                    System.out.println("SVD computation completed");
+
+                    updateProgress(80, 100);
+                    List<MovieRecommendation> recommendations = generateRecommendations(
+                            userId,
+                            predictedRatings,
+                            ratingMatrix,
+                            new ArrayList<>(validMovieIds)
+                    );
+
+                    System.out.println("Generated " + recommendations.size() + " recommendations");
+                    if (!recommendations.isEmpty()) {
+                        System.out.println("Top recommendation: MovieID=" + recommendations.get(0).getMovieId() +
+                                ", Rating=" + recommendations.get(0).getPredictedRating());
+                    }
+
+                    recommendationsCache.put(userId, recommendations);
+                    lastUpdateTime = System.currentTimeMillis();
+
+                    updateProgress(100, 100);
+                    return recommendations;
+
+                } catch (Exception e) {
+                    System.err.println("Error generating recommendations: " + e.getMessage());
+                    e.printStackTrace();
+                    updateProgress(0, 100);
+                    throw e;
+                }
+            }
+        };
+    }
+
+    private double[][] prepareRatingMatrix(List<Rating> ratings, Set<Integer> validMovieIds) {
+        Map<Integer, Integer> movieIdToIndex = new HashMap<>();
+        int index = 0;
+        for (Integer movieId : validMovieIds) {
+            movieIdToIndex.put(movieId, index++);
+        }
+
+        int maxUserId = ratings.stream().mapToInt(Rating::getUserId).max().orElse(0);
+        int totalMovies = validMovieIds.size();
+
+        System.out.println("Creating rating matrix: " + (maxUserId + 1) + " x " + totalMovies);
+
+        double[][] ratingMatrix = new double[maxUserId + 1][totalMovies];
+        int nonZeroRatings = 0;
+
+        for (Rating rating : ratings) {
+            Integer movieIndex = movieIdToIndex.get(rating.getMovieId());
+            if (movieIndex != null) {
+                ratingMatrix[rating.getUserId()][movieIndex] = rating.getRating();
+                nonZeroRatings++;
+            }
+        }
+
+        System.out.println("Matrix sparsity: " +
+                String.format("%.2f%%", (1 - (double)nonZeroRatings / ((maxUserId + 1) * totalMovies)) * 100));
+
+        return ratingMatrix;
+    }
+
+    private List<MovieRecommendation> generateRecommendations(
+            int userId,
+            double[][] predictedRatings,
+            double[][] originalRatings,
+            List<Integer> validMovieIds) {
+
+        List<MovieRecommendation> recommendations = new ArrayList<>();
+        int potentialRecommendations = 0;
+
+        for (int movieIndex = 0; movieIndex < predictedRatings[userId].length; movieIndex++) {
+            if (originalRatings[userId][movieIndex] == 0) {
+                potentialRecommendations++;
+                double predictedRating = predictedRatings[userId][movieIndex];
+                if (predictedRating >= MIN_RATING_THRESHOLD) {
+                    int realMovieId = validMovieIds.get(movieIndex);
+                    recommendations.add(new MovieRecommendation(realMovieId, predictedRating));
+                }
+            }
+        }
+
+        System.out.println("Potential recommendations checked: " + potentialRecommendations);
+        System.out.println("Recommendations above threshold: " + recommendations.size());
+
+        recommendations.sort((a, b) -> Double.compare(b.getPredictedRating(), a.getPredictedRating()));
+
+        List<MovieRecommendation> finalRecommendations = recommendations.size() > TOP_RECOMMENDATIONS ?
+                recommendations.subList(0, TOP_RECOMMENDATIONS) :
+                recommendations;
+
+        System.out.println("Final recommendations count: " + finalRecommendations.size());
+        return finalRecommendations;
+    }
+
+    private boolean isCacheValid(int userId) {
+        if (!recommendationsCache.containsKey(userId)) {
+            System.out.println("No cache entry for user " + userId);
+            return false;
+        }
+        boolean isValid = System.currentTimeMillis() - lastUpdateTime < CACHE_VALIDITY_PERIOD;
+        System.out.println("Cache " + (isValid ? "is" : "is not") + " valid for user " + userId);
+        return isValid;
+    }
+
     public static class MovieRecommendation {
         private final int movieId;
         private final double predictedRating;
@@ -40,121 +183,10 @@ public class RecommendationService {
 
         public int getMovieId() { return movieId; }
         public double getPredictedRating() { return predictedRating; }
-    }
 
-    /**
-     * Generuje rekomendacje dla użytkownika asynchronicznie.
-     * @param userId ID użytkownika
-     * @param k Liczba wymiarów w macierzy SVD
-     * @return Task zwracający listę rekomendacji
-     */
-    public Task<List<MovieRecommendation>> generateRecommendationsAsync(int userId, int k) {
-        return new Task<>() {
-            @Override
-            protected List<MovieRecommendation> call() throws Exception {
-                try {
-                    updateProgress(0, 100);
-
-                    // Sprawdź cache
-                    if (isCacheValid(userId)) {
-                        updateProgress(100, 100);
-                        return recommendationsCache.get(userId);
-                    }
-
-                    // Pobierz oceny
-                    updateProgress(20, 100);
-                    List<Rating> ratings;
-                    ratings = ratingDAO.getAllRatings();
-
-                    // Przygotuj macierz ocen
-                    updateProgress(40, 100);
-                    double[][] ratingMatrix = prepareRatingMatrix(ratings);
-
-                    // Oblicz SVD
-                    updateProgress(60, 100);
-                    double[][] predictedRatings;
-                    try {
-                        predictedRatings = SVDRecommender.computeSVD(ratingMatrix, k);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Błąd podczas obliczania SVD.", e);
-                    }
-
-                    // Generuj rekomendacje
-                    updateProgress(80, 100);
-                    List<MovieRecommendation> recommendations = generateRecommendations(userId, predictedRatings, ratingMatrix);
-
-                    // Zapisz w cache
-                    recommendationsCache.put(userId, recommendations);
-                    lastUpdateTime = System.currentTimeMillis();
-
-                    updateProgress(100, 100);
-                    return recommendations;
-
-                } catch (Exception e) {
-                    // Obsłuż błąd globalny
-                    updateProgress(0, 100);
-                    throw new RuntimeException("Wystąpił błąd podczas generowania rekomendacji.", e);
-                }
-            }
-        };
-    }
-
-    /**
-     * Sprawdza ważność pamięci podręcznej dla podanego użytkownika.
-     * @param userId ID użytkownika
-     * @return true, jeśli cache jest ważny
-     */
-    private boolean isCacheValid(int userId) {
-        if (!recommendationsCache.containsKey(userId)) return false;
-        return System.currentTimeMillis() - lastUpdateTime < CACHE_VALIDITY_PERIOD;
-    }
-
-    /**
-     * Przygotowuje macierz ocen na podstawie listy ocen użytkowników.
-     * @param ratings Lista ocen
-     * @return Dwuwymiarowa macierz ocen
-     */
-    private double[][] prepareRatingMatrix(List<Rating> ratings) {
-        try {
-            int maxUserId = ratings.stream().mapToInt(Rating::getUserId).max().orElse(0);
-            int maxMovieId = ratings.stream().mapToInt(Rating::getMovieId).max().orElse(0);
-
-            double[][] ratingMatrix = new double[maxUserId + 1][maxMovieId + 1];
-            for (Rating rating : ratings) {
-                ratingMatrix[rating.getUserId()][rating.getMovieId()] = rating.getRating();
-            }
-
-            lastRatingMatrix = ratingMatrix;
-            return ratingMatrix;
-        } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas przygotowywania macierzy ocen.", e);
-        }
-    }
-
-    /**
-     * Generuje rekomendacje na podstawie przewidywanych ocen i macierzy oryginalnych ocen.
-     * @param userId ID użytkownika
-     * @param predictedRatings Przewidywane oceny (macierz SVD)
-     * @param originalRatings Oryginalne oceny użytkowników
-     * @return Lista rekomendacji filmowych
-     */
-    private List<MovieRecommendation> generateRecommendations(int userId, double[][] predictedRatings, double[][] originalRatings) {
-        try {
-            List<MovieRecommendation> recommendations = new ArrayList<>();
-
-            for (int movieId = 0; movieId < predictedRatings[userId].length; movieId++) {
-                if (originalRatings[userId][movieId] == 0) {
-                    double predictedRating = predictedRatings[userId][movieId];
-                    if (predictedRating >= 3.5) {
-                        recommendations.add(new MovieRecommendation(movieId, predictedRating));
-                    }
-                }
-            }
-
-            recommendations.sort((a, b) -> Double.compare(b.getPredictedRating(), a.getPredictedRating()));
-            return recommendations;
-        } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas generowania rekomendacji.", e);
+        @Override
+        public String toString() {
+            return String.format("MovieRecommendation{movieId=%d, rating=%.2f}", movieId, predictedRating);
         }
     }
 }

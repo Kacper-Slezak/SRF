@@ -1,14 +1,19 @@
 package com.srf.services;
 
 import com.srf.dao.RatingDAO;
+import com.srf.dao.MovieDAO;
 import com.srf.models.Rating;
+import com.srf.models.Movie;
 import javafx.concurrent.Task;
+
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class RecommendationService {
     private final RatingDAO ratingDAO;
+    private final MovieDAO movieDAO;
     private final Map<Integer, List<MovieRecommendation>> recommendationsCache;
     private long lastUpdateTime;
     private static final long CACHE_VALIDITY_PERIOD = 15 * 60 * 1000;
@@ -16,29 +21,37 @@ public class RecommendationService {
     private static final int MIN_RATINGS_FOR_MOVIE = 3;
     private static final double MIN_RATING_THRESHOLD = 3.0; // Obniżony próg dla testów
 
-    public RecommendationService(RatingDAO ratingDAO) {
+    public RecommendationService(RatingDAO ratingDAO, MovieDAO movieDAO) {
         this.ratingDAO = ratingDAO;
+        this.movieDAO = movieDAO;
         this.recommendationsCache = new ConcurrentHashMap<>();
     }
 
-    public Task<List<MovieRecommendation>> generateRecommendationsAsync(int userId, int k) {
+    public Task<List<Movie>> generateRecommendationsAsync(int userId, int k) {
         return new Task<>() {
             @Override
-            protected List<MovieRecommendation> call() throws Exception {
+            protected List<Movie> call() throws Exception {
                 try {
                     System.out.println("=== Starting recommendation generation for user " + userId + " ===");
                     updateProgress(0, 100);
 
+                    // Sprawdź cache
                     if (isCacheValid(userId)) {
                         System.out.println("Using cached recommendations for user " + userId);
                         updateProgress(100, 100);
-                        return recommendationsCache.get(userId);
+
+                        // Konwersja z cache do listy Movie
+                        List<Movie> cachedMovies = convertRecommendationsToMovies(recommendationsCache.get(userId));
+                        System.out.println("Returning " + cachedMovies.size() + " cached movies");
+                        return cachedMovies;
                     }
 
                     updateProgress(20, 100);
+                    System.out.println("Loading all ratings...");
                     List<Rating> allRatings = ratingDAO.getAllRatings();
                     System.out.println("Total ratings loaded: " + allRatings.size());
 
+                    // Filtrowanie ocen
                     Map<Integer, Long> movieRatingCounts = allRatings.stream()
                             .collect(Collectors.groupingBy(Rating::getMovieId, Collectors.counting()));
 
@@ -47,30 +60,34 @@ public class RecommendationService {
                             .map(Map.Entry::getKey)
                             .collect(Collectors.toSet());
 
+                    System.out.println("Original movie count: " + movieRatingCounts.size());
+                    System.out.println("Filtered movie count: " + validMovieIds.size());
+
                     List<Rating> filteredRatings = allRatings.stream()
                             .filter(r -> validMovieIds.contains(r.getMovieId()))
                             .collect(Collectors.toList());
-
-                    System.out.println("Original movie count: " + movieRatingCounts.size());
-                    System.out.println("Filtered movie count: " + validMovieIds.size());
                     System.out.println("Filtered ratings count: " + filteredRatings.size());
 
                     updateProgress(40, 100);
+
+                    // Przygotowanie macierzy ocen
+                    System.out.println("Preparing rating matrix...");
                     double[][] ratingMatrix = prepareRatingMatrix(filteredRatings, validMovieIds);
-                    System.out.println("Rating matrix prepared: " + ratingMatrix.length + " x " +
+                    System.out.println("Rating matrix prepared with dimensions: " + ratingMatrix.length + " x " +
                             (ratingMatrix.length > 0 ? ratingMatrix[0].length : 0));
 
-                    allRatings = null;
-                    filteredRatings = null;
-                    System.gc();
-
                     updateProgress(60, 100);
+
+                    // Obliczanie SVD
+                    System.out.println("Computing SVD...");
                     int effectiveK = Math.min(k, 20);
-                    System.out.println("Computing SVD with k=" + effectiveK);
                     double[][] predictedRatings = SVDRecommender.computeSVD(ratingMatrix, effectiveK);
                     System.out.println("SVD computation completed");
 
                     updateProgress(80, 100);
+
+                    // Generowanie rekomendacji
+                    System.out.println("Generating recommendations...");
                     List<MovieRecommendation> recommendations = generateRecommendations(
                             userId,
                             predictedRatings,
@@ -84,11 +101,17 @@ public class RecommendationService {
                                 ", Rating=" + recommendations.get(0).getPredictedRating());
                     }
 
+                    // Konwersja do listy obiektów Movie
+                    System.out.println("Converting recommendations to movies...");
+                    List<Movie> movies = convertRecommendationsToMovies(recommendations);
+                    System.out.println("Converted " + movies.size() + " movies");
+
                     recommendationsCache.put(userId, recommendations);
                     lastUpdateTime = System.currentTimeMillis();
 
                     updateProgress(100, 100);
-                    return recommendations;
+                    System.out.println("=== Recommendation generation completed for user " + userId + " ===");
+                    return movies;
 
                 } catch (Exception e) {
                     System.err.println("Error generating recommendations: " + e.getMessage());
@@ -99,6 +122,7 @@ public class RecommendationService {
             }
         };
     }
+
 
     private double[][] prepareRatingMatrix(List<Rating> ratings, Set<Integer> validMovieIds) {
         Map<Integer, Integer> movieIdToIndex = new HashMap<>();
@@ -189,4 +213,21 @@ public class RecommendationService {
             return String.format("MovieRecommendation{movieId=%d, rating=%.2f}", movieId, predictedRating);
         }
     }
+    private List<Movie> convertRecommendationsToMovies(List<MovieRecommendation> recommendations) throws SQLException {
+        List<Movie> movies = new ArrayList<>();
+
+        for (MovieRecommendation recommendation : recommendations) {
+            // Pobierz film na podstawie ID
+            List<Movie> matchingMovies = movieDAO.getAllMovies()
+                    .stream()
+                    .filter(movie -> movie.getId() == recommendation.getMovieId())
+                    .collect(Collectors.toList());
+
+            if (!matchingMovies.isEmpty()) {
+                movies.add(matchingMovies.get(0));
+            }
+        }
+        return movies;
+    }
+
 }

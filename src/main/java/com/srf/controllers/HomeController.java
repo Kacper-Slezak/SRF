@@ -82,9 +82,6 @@ public class HomeController {
     }
     @FXML
     public void search() {
-        ListVbox.getChildren().clear();
-        description.setText("Wyniki wyszukiwania:");
-
         //CO TU SIE ODJANIEPAWLA bo daje nulla
         String searchQuery = SearchTextField.getText();
         Task<List<Movie>> searchTask = new Task<>() {
@@ -100,6 +97,7 @@ public class HomeController {
         searchTask.setOnSucceeded(event -> {
             currentStartIndex = 0;
             previousWasRecommend = false;
+            description.setText("Wyniki wyszukiwania:");
             refresh(searchList);
         });
 
@@ -110,8 +108,6 @@ public class HomeController {
     }
     @FXML
     private void recommend() {
-        ListVbox.getChildren().clear();
-
         if (recommendationsList.isEmpty()) {
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
@@ -141,8 +137,10 @@ public class HomeController {
     @FXML
     public void refresh(List<Movie> movies) {
         try{
-            //Platform.runLater(() -> {
+            Platform.runLater(() -> {
                     try {
+                        ListVbox.getChildren().clear();
+
                         int endIndex = Math.min(currentStartIndex + pageSize, previousWasRecommend ? movies.size() : pageSize);
 
                         if (previousWasRecommend && currentStartIndex >= movies.size()) {
@@ -192,7 +190,7 @@ public class HomeController {
                                 )
                         );
                     }
-            //});
+            });
         } catch (NullPointerException e) {
             alertManager.showError(
                     "Błąd listy filmów",

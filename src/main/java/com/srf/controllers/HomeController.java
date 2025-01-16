@@ -292,4 +292,7 @@ public class HomeController {
     public void onClose() {
         executorService.shutdown();
     }
+
+    public void onGenerateRecommendationsButton(ActionEvent event) {
+    }
 }

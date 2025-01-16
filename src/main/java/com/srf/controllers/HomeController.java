@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//TODO odciążyć homecontroller scroll down      
 public class HomeController {
     @FXML
     public Button SearchButton;
@@ -85,9 +84,6 @@ public class HomeController {
 
     @FXML
     public void search() {
-        ListVbox.getChildren().clear();
-        description.setText("Wyniki wyszukiwania:");
-
         String searchQuery = SearchTextField.getText();
         Task<List<Movie>> searchTask = new Task<>() {
             @Override
@@ -97,10 +93,10 @@ public class HomeController {
         };
 
         searchTask.setOnSucceeded(event -> {
+            description.setText("Wyniki wyszukiwania:");
             searchList = searchTask.getValue();
             currentStartIndex = 0; // Reset indeksu
             previousWasRecommend = false; // Oznacz, że wyświetlamy wyniki wyszukiwania
-            ListVbox.getChildren().add(description);
             refresh(searchList); // Wyświetl pierwszą paczkę
         });
 
@@ -115,12 +111,8 @@ public class HomeController {
 
         new Thread(searchTask).start();
     }
-
-
     @FXML
     private void recommend() {
-        ListVbox.getChildren().clear();
-
         if (recommendationsList.isEmpty()) {
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
@@ -129,8 +121,7 @@ public class HomeController {
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
                 description.setText("Your personal recommendations:");
-                ListVbox.getChildren().add(description);
-                refresh(recommendationsList); // Wyświetl pierwszą paczkę
+                refresh(recommendationsList);
             });
 
             recommendedMoviesTask.setOnFailed(event -> {
@@ -149,8 +140,8 @@ public class HomeController {
             description.setText("Your personal recommendations:");
             refresh(recommendationsList); // Wyświetl pierwszą paczkę
         }
+        ListVbox.getChildren().add(description);
     }
-
     @FXML
     public void refresh(List<Movie> movies) {
         try {

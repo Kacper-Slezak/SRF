@@ -19,7 +19,12 @@
                         <Insets right="20.0" />
                      </HBox.margin>
                   </Label>
-                        <TextField fx:id="SearchTextField" prefHeight="30.0" prefWidth="450.0" />
+                  <Button fx:id="GenerateRecommendationsButton" mnemonicParsing="false" onAction="#onGenerateRecommendationsButton" prefHeight="30.0" prefWidth="190.0" text="Generate Recommendations">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Button>
+                        <TextField fx:id="SearchTextField" prefHeight="30.0" prefWidth="250.0" />
                         <Button fx:id="SearchButton" mnemonicParsing="false" onAction="#onSearchButton" prefHeight="30.0" prefWidth="60.0" text="Search" />
                     </children>
                 </HBox>
@@ -29,12 +34,28 @@
                      <font>
                         <Font size="45.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets left="75.0" top="50.0" />
+                     </VBox.margin>
                   </Label>
                   <Label fx:id="NameLabel">
                      <font>
                         <Font size="24.0" />
-                     </font></Label>
-                  <Label text="Glad to see You here, please hit refresh button to discover Your movie recommendations." />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="75.0" />
+                     </VBox.margin></Label>
+                  <Label text="Glad to see You here!">
+                   <font>
+                       <Font size="24.0" />
+                   </font>
+                     <VBox.margin>
+                        <Insets left="75.0" />
+                     </VBox.margin></Label>
+                   <Label text="Please generate your recommendations, or search for Your favourites.">
+                     <VBox.margin>
+                        <Insets left="75.0" />
+                     </VBox.margin></Label>
                </children>
                 </VBox>
                 <Button fx:id="RefreshButton" alignment="CENTER" mnemonicParsing="false" onAction="#onRefreshButton" prefWidth="600.0" text="Refresh">

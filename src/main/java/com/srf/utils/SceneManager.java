@@ -1,6 +1,5 @@
 package com.srf.utils;
 
-import com.srf.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -11,9 +10,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class SceneManager {
-
     private static SceneManager instance;
-
     AlertManager alertManager = AlertManager.getInstance();
 
     public void showPrimaryScene() {
@@ -49,19 +46,6 @@ public class SceneManager {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            stage.getScene().setRoot(root);
-            stage.show();
-        } catch (IOException e) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
-        }
-    }
-
-    public void switchScene(ActionEvent event, String sceneName, User user) throws IOException {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(sceneName));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            stage.setUserData(user);
             stage.getScene().setRoot(root);
             stage.show();
         } catch (IOException e) {

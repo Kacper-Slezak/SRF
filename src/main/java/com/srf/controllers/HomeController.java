@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+//TODO odciążyć homecontroller czat mi taka opocje zaproponował: odciazyc.txt
 public class HomeController {
     @FXML
     public Button SearchButton;

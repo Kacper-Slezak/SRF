@@ -36,8 +36,6 @@ public class HomeController {
     public TextField SearchTextField;
     @FXML
     public VBox ListVbox;
-    @FXML
-    public Label NameLabel;
 
     private RecommendationService recommendationService;
     private SearchService searchService;
@@ -61,7 +59,6 @@ public class HomeController {
             recommendationService = new RecommendationService(ratingDAO);
             searchService = new SearchService(movieDAO);
             currentUser = data.getUser();
-            NameLabel.setText(currentUser.getUsername());
         } catch (SQLException e) {
             Platform.runLater(() ->
                     alertManager.showAlert(
@@ -115,7 +112,7 @@ public class HomeController {
                         "Ocena została zapisana pomyślnie"
                 );
                 cachedRecommendations.clear();
-                onRefreshButton(ActionEvent actionEvent);
+                refresh(true);
             });
         });
 
@@ -134,11 +131,12 @@ public class HomeController {
     }
 
     @FXML
-    public void onRefreshButton(ActionEvent actionEvent) {
+    public void refresh(boolean searchOrRecommend) {
         ListVbox.getChildren().clear();
-
         Label description = new Label();
-        description.setText("Your personal recommendations");
+
+        if (searchOrRecommend) {
+            description.setText("Twoje osobiste rekomendacje");
             if (cachedRecommendations.isEmpty()) {
                 Task<List<RecommendationService.MovieRecommendation>> recommendedMoviesTask =
                         recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
@@ -163,6 +161,20 @@ public class HomeController {
             } else {
                 displayNextBatch(true);
             }
+        } else {
+            description.setText("Wyniki wyszukiwania");
+            String searchQuery = SearchTextField.getText();
+            Task<List<Movie>> searchTask = new Task<>() {
+                @Override
+                protected List<Movie> call() {
+                    return searchService.searchMovies(searchQuery);
+                }
+            };
+
+            searchTask.setOnSucceeded(event -> displaySearchResults(searchTask.getValue()));
+
+            new Thread(searchTask).start();
+        }
         ListVbox.getChildren().add(description);
     }
 
@@ -179,21 +191,15 @@ public class HomeController {
 
             for (int i = currentStartIndex; i < endIndex; i++) {
                 HBox hBox = new HBox(10);
-                hBox.setSpacing(10);
 
-            Label title = new Label();
-            Label genre = new Label();
-            Rating rating = new Rating();
-                org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating();
+                Label title = new Label();
+                Label genre = new Label();
+                org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating(); // JavaFX Rating control
+
                 if (isRecommendation) {
                     RecommendationService.MovieRecommendation movie = cachedRecommendations.get(i);
                     title.setText("ID Filmu: " + movie.getMovieId());
                     genre.setText("Przewidywana ocena: " + movie.getPredictedRating());
-
-
-
-            hBox.getChildren().addAll(title, genre, rating);
-            ListVbox.getChildren().add(hBox);
 
                     try {
                         Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getMovieId());
@@ -232,7 +238,6 @@ public class HomeController {
             );
         }
     }
-
 
     private void displaySearchResults(List<Movie> movies) {
         Platform.runLater(() -> {
@@ -276,44 +281,12 @@ public class HomeController {
 
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
+        refresh(false);
+    }
 
-        ListVbox.getChildren().clear();
-
-        Label description = new Label();
-        description.setText("Search results");
-            description.setText("Wyniki wyszukiwania");
-            String searchQuery = SearchTextField.getText();
-            Task<List<Movie>> searchTask = new Task<>() {
-                @Override
-                protected List<Movie> call() {
-                    return searchService.searchMovies(searchQuery);
-                }
-            };
-
-            searchTask.setOnSucceeded(event -> displaySearchResults(searchTask.getValue()));
-
-            new Thread(searchTask).start();
-        ListVbox.getChildren().add(description);
-        int endIndex = Math.min(currentStartIndex + PAGE_SIZE,
-                isRecommendation ? cachedRecommendations.size() : PAGE_SIZE);
-
-        for (int i = currentStartIndex; i < endIndex; i++) {
-            HBox hBox = new HBox(10);
-
-            Label title = new Label();
-            Label genre = new Label();
-            org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating(); // JavaFX Rating control
-
-
-            title.setText("Wynik wyszukiwania");
-            genre.setText("Gatunek");
-
-
-            hBox.getChildren().addAll(title, genre, ratingControl);
-            ListVbox.getChildren().add(hBox);
-
-
-        }
+    @FXML
+    public void onRefreshButton(ActionEvent actionEvent) {
+        refresh(true);
     }
 
     public void onClose() {

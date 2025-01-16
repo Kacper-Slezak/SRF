@@ -41,8 +41,10 @@ public class HomeController {
     private SearchService searchService;
     private RatingDAO ratingDAO;
     private MovieDAO movieDAO;
-    private User currentUser;
-    private List<RecommendationService.MovieRecommendation> cachedRecommendations = new ArrayList<>();
+
+    private List<Movie> cachedRecommendations = new ArrayList<>();
+    private ArrayList<Number> userRatings = new ArrayList<>();
+  
     private int currentStartIndex = 0;
     private static final int PAGE_SIZE = 5;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -55,7 +57,7 @@ public class HomeController {
         try {
             ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
             movieDAO = new MovieDAO(DatabaseConnection.getConnection());
-            recommendationService = new RecommendationService(ratingDAO);
+            recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
             currentUser = data.getUser();
         } catch (SQLException e) {
@@ -137,8 +139,9 @@ public class HomeController {
         if (searchOrRecommend) {
             description.setText("Twoje osobiste rekomendacje");
             if (cachedRecommendations.isEmpty()) {
-                Task<List<RecommendationService.MovieRecommendation>> recommendedMoviesTask =
+                Task<List<Movie>> recommendedMoviesTask =
                         recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
+
 
                 recommendedMoviesTask.setOnSucceeded(event -> {
                     cachedRecommendations = recommendedMoviesTask.getValue();
@@ -157,7 +160,7 @@ public class HomeController {
                 });
 
                 new Thread(recommendedMoviesTask).start();
-            } else {
+            }   else {
                 displayNextBatch(true);
             }
         } else {
@@ -196,12 +199,12 @@ public class HomeController {
                 org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating(); // JavaFX Rating control
 
                 if (isRecommendation) {
-                    RecommendationService.MovieRecommendation movie = cachedRecommendations.get(i);
-                    title.setText("ID Filmu: " + movie.getMovieId());
-                    genre.setText("Przewidywana ocena: " + movie.getPredictedRating());
+                    Movie movie = cachedRecommendations.get(i);
+                    title.setText("Tytuł filmu: " + movie.getTitle());
+                    genre.setText("Gatunek: " + movie.getGenre());
 
                     try {
-                        Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getMovieId());
+                        Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
                         if (existingRating != null) {
                             ratingControl.setRating(existingRating.getRating());
                         }
@@ -209,7 +212,7 @@ public class HomeController {
                         System.err.println("Błąd podczas pobierania oceny: " + e.getMessage());
                     }
 
-                    final int movieId = movie.getMovieId();
+                    final int movieId = movie.getId();
                     ratingControl.ratingProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue != null && !oldValue.equals(newValue)) {
                             zapiszOcene(movieId, newValue.doubleValue());

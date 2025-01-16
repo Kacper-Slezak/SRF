@@ -41,14 +41,13 @@ public class HomeController {
     private SearchService searchService;
     private RatingDAO ratingDAO;
     private MovieDAO movieDAO;
+    private User currentUser;
     private List<RecommendationService.MovieRecommendation> cachedRecommendations = new ArrayList<>();
-    private ArrayList<Number> userRatings = new ArrayList<>();
     private int currentStartIndex = 0;
     private static final int PAGE_SIZE = 5;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
 
-    private User currentUser;
     DataSingleton data = DataSingleton.getInstance();
 
     @FXML
@@ -278,21 +277,62 @@ public class HomeController {
         });
     }
 
+    private void generateRecommendations() {
+        cachedRecommendations.clear();
 
+        Task<List<RecommendationService.MovieRecommendation>> recommendedMoviesTask =
+                recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
+
+        recommendedMoviesTask.setOnSucceeded(event -> {
+            cachedRecommendations = recommendedMoviesTask.getValue();
+            currentStartIndex = 0;
+        });
+
+        recommendedMoviesTask.setOnFailed(event -> {
+            Platform.runLater(() ->
+                    alertManager.showAlert(
+                            Alert.AlertType.ERROR,
+                            "Błąd rekomendacji",
+                            "Nie udało się pobrać rekomendacji: " + recommendedMoviesTask.getException().getMessage()
+                    )
+            );
+        });
+
+        new Thread(recommendedMoviesTask).start();
+    }
+
+    private void search() {
+        String searchQuery = SearchTextField.getText();
+        Task<List<Movie>> searchTask = new Task<>() {
+            @Override
+            protected List<Movie> call() {
+                return searchService.searchMovies(searchQuery);
+            }
+        };
+
+        List<Movie> searchResults = searchTask.getValue();
+
+        new Thread(searchTask).start();
+    }
+
+    public void onGenerateRecommendationsButton(ActionEvent event) {
+        generateRecommendations();
+        refreshRecommendations();
+    }
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
-        refresh(false);
+        search();
+        refreshSearch();
     }
-
     @FXML
     public void onRefreshButton(ActionEvent actionEvent) {
-        refresh(true);
+        refresh();
     }
+
 
     public void onClose() {
         executorService.shutdown();
     }
 
-    public void onGenerateRecommendationsButton(ActionEvent event) {
-    }
+
 }

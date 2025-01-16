@@ -31,4 +31,9 @@
       <Label text="Don't have an account?" />
       <Button fx:id="registerButton" mnemonicParsing="false" onAction="#onRegisterButton" text="Register" />
    </VBox>
+   <Label layoutX="10.0" layoutY="10.0" text="SRF">
+      <font>
+         <Font name="System Bold" size="20.0" />
+      </font>
+   </Label>
 </AnchorPane>

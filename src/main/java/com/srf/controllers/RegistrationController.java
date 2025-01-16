@@ -3,17 +3,15 @@ package com.srf.controllers;
 import com.srf.models.User;
 import com.srf.services.AuthenticationService;
 import com.srf.dao.UserDAO;
+import com.srf.utils.AlertManager;
 import com.srf.utils.DatabaseConnection;
+import com.srf.utils.SceneManager;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,9 +30,8 @@ public class RegistrationController {
     public Button registerButton;
 
     private AuthenticationService authenticationService;
-
-    private Stage stage;
-    private Scene scene;
+    AlertManager alertManager = AlertManager.getInstance();
+    SceneManager sceneManager = SceneManager.getInstance();
 
     @FXML
     public void initialize() {
@@ -42,7 +39,7 @@ public class RegistrationController {
             UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
             this.authenticationService = new AuthenticationService(userDAO);
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error",
+            alertManager.showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to database. Please try again later.");
         }
     }
@@ -50,7 +47,7 @@ public class RegistrationController {
     @FXML
     public void onRegisterButton(ActionEvent actionEvent) throws IOException {
         if (authenticationService == null) {
-            showAlert(Alert.AlertType.ERROR, "System Error",
+            alertManager.showAlert(Alert.AlertType.ERROR, "System Error",
                     "System initialization failed. Please restart the application.");
             return;
         }
@@ -59,51 +56,18 @@ public class RegistrationController {
         String password = passwordField.getText();
         String repeatPassword = repeatPasswordField.getText();
 
-        // Podstawowa walidacja danych
-        if (username.isEmpty() || password.isEmpty() || repeatPassword.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Please fill in all fields.");
-            return;
-        }
-
-        if (!password.equals(repeatPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error",
-                    "Passwords do not match.");
-            return;
-        }
-
         try {
-            User newUser = authenticationService.register(username, password);
-            showAlert(Alert.AlertType.INFORMATION, "Success",
+            // Wywołanie logiki rejestracji w serwisie
+            User newUser = authenticationService.register(username, password, repeatPassword);
+            alertManager.showAlert(Alert.AlertType.INFORMATION, "Success",
                     "Registration successful! Please log in with your new account.");
-            switchToLoginScene(actionEvent);
-
+            sceneManager.switchToLoginScene(actionEvent);
 
         } catch (IllegalArgumentException e) {
-            showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
+            alertManager.showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error",
+            alertManager.showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to database. Please try again later.");
-        } /*catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "System Error",
-                    "Could not load the login screen. Please restart the application.");
-        }*/
+        }
     }
-
-    public void switchToLoginScene(ActionEvent event) throws IOException {
-        FXMLLoader root = new FXMLLoader(getClass().getResource("/com/srf/login.fxml"));
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root.load());
-        stage.setScene(scene);
-        stage.show();
-    }
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-
 }

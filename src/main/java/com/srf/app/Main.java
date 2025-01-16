@@ -1,12 +1,13 @@
 package com.srf.app;
 
+import com.srf.utils.SceneManager;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Main extends Application {
+
+    protected SceneManager sceneManager = new SceneManager();
 
     public static void main(String[] args) {
         launch(args);
@@ -14,11 +15,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader root = new FXMLLoader(getClass().getResource("/com/srf/login.fxml"));
-        Scene loginScene = new Scene(root.load(), 400, 600);
-        stage.setScene(loginScene);
-
-        stage.setTitle("SRF");
-        stage.show();
+        sceneManager.showPrimaryScene();
     }
 }

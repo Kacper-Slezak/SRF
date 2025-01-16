@@ -1,0 +1,48 @@
+Aby odciążyć HomeController, warto podzielić jego odpowiedzialności zgodnie z zasadą Single Responsibility Principle (SRP). Można wydzielić logikę do innych klas lub serwisów.
+
+1. Zarządzanie rekomendacjami i wyszukiwaniem
+Metody do przeniesienia:
+refresh(boolean searchOrRecommend)
+displayNextBatch(boolean isRecommendation)
+displaySearchResults(List<Movie> movies)
+Gdzie przenieść?
+Można utworzyć nową klasę, np. MovieDisplayService, która będzie odpowiadać za generowanie i wyświetlanie listy filmów (rekomendacji lub wyników wyszukiwania).
+HomeController odwoływałby się do tej klasy tylko w celu zainicjowania procesu, np.:
+java
+Kopiuj
+Edytuj
+movieDisplayService.refresh(ListVbox, searchOrRecommend);
+2. Operacje na ocenach
+Metody do przeniesienia:
+zapiszOcene(int movieId, double ratingValue)
+Gdzie przenieść?
+Do nowej klasy, np. RatingService, która zarządza logiką zapisu i aktualizacji ocen.
+HomeController wywoływałby tę klasę w uproszczony sposób:
+java
+Kopiuj
+Edytuj
+ratingService.saveRating(currentUser.getId(), movieId, ratingValue);
+3. Inicjalizacja DAO i serwisów
+Metody do przeniesienia:
+Część kodu z initialize(), odpowiedzialna za tworzenie obiektów DAO i serwisów.
+Gdzie przenieść?
+Do klasy pomocniczej, np. AppInitializer, która mogłaby zwracać gotowe instancje DAO i serwisów.
+4. Obsługa błędów i alertów
+Metody do przeniesienia:
+Fragmenty wyświetlające alerty, np. w refresh czy zapiszOcene.
+Gdzie przenieść?
+AlertManager mógłby zostać rozszerzony, aby uprościć jego wywołania, np.:
+java
+Kopiuj
+Edytuj
+alertManager.showError("Błąd rekomendacji", e.getMessage());
+Proponowany podział:
+Nowa Klasa	Przeniesione Metody/Odpowiedzialność
+MovieDisplayService	refresh(), displayNextBatch(), displaySearchResults()
+RatingService	zapiszOcene()
+AppInitializer	Logika inicjalizacji obiektów DAO i serwisów z initialize()
+AlertManager	Rozszerzenie obsługi alertów (np. standaryzacja wywołań)
+Korzyści z przeniesienia metod:
+Czytelność: HomeController będzie zawierał tylko logikę związaną z obsługą zdarzeń i zarządzaniem widokiem.
+Testowalność: Przeniesienie logiki do innych klas umożliwia łatwiejsze testowanie jednostkowe.
+Modularność: Można łatwo modyfikować lub wymieniać poszczególne komponenty (np. algorytmy rekomendacji) bez ingerencji w HomeController.

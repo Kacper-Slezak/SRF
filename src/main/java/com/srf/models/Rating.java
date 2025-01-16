@@ -11,6 +11,7 @@ public class Rating {
     private double rating;
     private int timestamp;
 
+
     public Rating(int userId, int movieId, double rating) {
         this.userId = userId;
         this.movieId = movieId;

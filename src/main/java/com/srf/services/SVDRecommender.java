@@ -1,67 +1,87 @@
 package com.srf.services;
 
 import org.ejml.simple.SimpleMatrix;
+import org.ejml.simple.SimpleSVD;
 
 public class SVDRecommender {
-
-    /**
-     * Przeprowadza dekompozycję SVD i przewiduje brakujące oceny.
-     *
-     * @param ratings Macierz ocen (użytkownicy x filmy). Zera oznaczają brak oceny.
-     * @param k       Liczba wymiarów do zachowania w macierzy S.
-     * @return Zrekonstruowana macierz ocen.
-     */
     public static double[][] computeSVD(double[][] ratings, int k) {
-        // Utworzenie macierzy
-        SimpleMatrix ratingMatrix = new SimpleMatrix(ratings);
-
-        // Przeprowadzenie SVD
-        SimpleMatrix U = ratingMatrix.svd().getU();
-        SimpleMatrix S = ratingMatrix.svd().getW();
-        SimpleMatrix V = ratingMatrix.svd().getV();
-
-        // Przycięcie macierzy S do k wymiarów
-        SimpleMatrix S_reduced = new SimpleMatrix(k, k);
-        for (int i = 0; i < k; i++) {
-            S_reduced.set(i, i, S.get(i, i));
+        if (ratings == null || ratings.length == 0) {
+            throw new IllegalArgumentException("Rating matrix cannot be empty");
         }
 
-        // Przycięcie U i V
-        SimpleMatrix U_reduced = U.cols(0, k);
-        SimpleMatrix V_reduced = V.cols(0, k);
+        try {
+            System.out.println("Starting SVD computation...");
+            int numUsers = ratings.length;
+            int numMovies = ratings[0].length;
+            System.out.println("Matrix dimensions: " + numUsers + " x " + numMovies);
 
-        // Rekonstrukcja macierzy
-        SimpleMatrix reconstructed = U_reduced.mult(S_reduced).mult(V_reduced.transpose());
-
-        // Konwersja wyniku na tablicę dwuwymiarową
-        double[][] result = new double[reconstructed.numRows()][reconstructed.numCols()];
-        for (int i = 0; i < reconstructed.numRows(); i++) {
-            for (int j = 0; j < reconstructed.numCols(); j++) {
-                result[i][j] = reconstructed.get(i, j);
+            // Calculate row means
+            System.out.println("Calculating row means...");
+            double[] rowMeans = new double[numUsers];
+            for (int i = 0; i < numUsers; i++) {
+                double sum = 0;
+                int count = 0;
+                for (double rating : ratings[i]) {
+                    if (rating > 0) {
+                        sum += rating;
+                        count++;
+                    }
+                }
+                rowMeans[i] = count > 0 ? sum / count : 0;
             }
-        }
-        return result;
-    }
 
-    public static void main(String[] args) {
-        // Przykładowe dane
-        double[][] ratings = {
-                {5, 4, 0, 0},
-                {4, 0, 0, 3},
-                {0, 0, 5, 4},
-                {0, 3, 4, 5}
-        };
-
-        // Obliczanie SVD i przewidywanie brakujących ocen
-        double[][] predictedRatings = computeSVD(ratings, 2);
-
-        // Wyświetlanie wyników
-        System.out.println("Zrekonstruowana macierz ocen:");
-        for (double[] row : predictedRatings) {
-            for (double value : row) {
-                System.out.printf("%.2f ", value);
+            // Normalize ratings
+            System.out.println("Normalizing ratings...");
+            double[][] normalizedRatings = new double[numUsers][numMovies];
+            for (int i = 0; i < numUsers; i++) {
+                for (int j = 0; j < numMovies; j++) {
+                    if (ratings[i][j] > 0) {
+                        normalizedRatings[i][j] = ratings[i][j] - rowMeans[i];
+                    }
+                }
             }
-            System.out.println();
+
+            // Convert to SimpleMatrix
+            System.out.println("Converting to SimpleMatrix...");
+            SimpleMatrix ratingMatrix = new SimpleMatrix(normalizedRatings);
+            normalizedRatings = null;
+            System.gc();
+
+            // Perform SVD
+            System.out.println("Performing SVD decomposition...");
+            SimpleSVD<SimpleMatrix> svd = ratingMatrix.svd();
+            System.out.println("SVD completed successfully");
+            ratingMatrix = null;
+            System.gc();
+
+            // Reduce dimensions
+            k = Math.min(k, Math.min(numUsers, numMovies));
+            System.out.println("Reducing to " + k + " dimensions");
+            SimpleMatrix U = svd.getU().extractMatrix(0, numUsers, 0, k);
+            SimpleMatrix S = svd.getW().extractMatrix(0, k, 0, k);
+            SimpleMatrix V = svd.getV().extractMatrix(0, numMovies, 0, k);
+
+            // Reconstruct matrix
+            System.out.println("Reconstructing matrix...");
+            SimpleMatrix reconstructed = U.mult(S).mult(V.transpose());
+
+            // Convert back to array
+            System.out.println("Converting results to array...");
+            double[][] result = new double[numUsers][numMovies];
+            for (int i = 0; i < numUsers; i++) {
+                for (int j = 0; j < numMovies; j++) {
+                    result[i][j] = reconstructed.get(i, j) + rowMeans[i];
+                    result[i][j] = Math.max(1, Math.min(5, result[i][j]));
+                }
+            }
+
+            System.out.println("SVD computation completed successfully");
+            return result;
+
+        } catch (Exception e) {
+            System.err.println("Error in SVD computation: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("SVD computation failed: " + e.getMessage(), e);
         }
     }
 }

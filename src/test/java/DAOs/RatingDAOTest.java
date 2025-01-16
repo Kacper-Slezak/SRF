@@ -1,7 +1,7 @@
 package DAOs;
 
-import com.laby.dao.RatingDAO;
-import com.laby.models.Rating;
+import com.srf.dao.RatingDAO;
+import com.srf.models.Rating;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

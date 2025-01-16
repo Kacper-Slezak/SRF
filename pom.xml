@@ -16,6 +16,8 @@
         <javafx.version>20</javafx.version>
     </properties>
 
+
+
     <dependencies>
         <!-- JavaFX Modules -->
         <dependency>
@@ -103,9 +105,24 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.srf.app.Main</mainClass>
+                <mainClass>com.srf.app.Main</mainClass>
+                <options>
+                    <option>-Xms512m</option>
+                    <option>-Xmx4g</option>
+                </options>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <argLine>-Xms512m -Xmx2g</argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

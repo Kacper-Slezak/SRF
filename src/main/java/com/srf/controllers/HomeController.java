@@ -13,6 +13,8 @@ import com.srf.utils.DatabaseConnection;
 import com.srf.utils.AlertManager;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -21,13 +23,16 @@ import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 
 import javafx.event.ActionEvent;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//TODO odciążyć homecontroller scroll down      
 public class HomeController {
     @FXML
     public Button SearchButton;
@@ -41,6 +46,8 @@ public class HomeController {
     public Button PlusButton;
     @FXML
     public Label NameLabel;
+    @FXML
+    public VBox RatingVbox;
 
 
     private RecommendationService recommendationService;
@@ -62,6 +69,7 @@ public class HomeController {
     private User currentUser;
     DataSingleton data = DataSingleton.getInstance();
     Label description = new Label();
+    Label description2 = new Label();
 
     @FXML
     public void initialize() {
@@ -82,12 +90,8 @@ public class HomeController {
             );
         }
     }
-
     @FXML
     public void search() {
-        ListVbox.getChildren().clear();
-        description.setText("Wyniki wyszukiwania:");
-
         String searchQuery = SearchTextField.getText();
         Task<List<Movie>> searchTask = new Task<>() {
             @Override
@@ -97,10 +101,10 @@ public class HomeController {
         };
 
         searchTask.setOnSucceeded(event -> {
+            description.setText("Search Results:");
             searchList = searchTask.getValue();
             currentStartIndex = 0; // Reset indeksu
             previousWasRecommend = false; // Oznacz, że wyświetlamy wyniki wyszukiwania
-            ListVbox.getChildren().add(description);
             refresh(searchList); // Wyświetl pierwszą paczkę
         });
 
@@ -115,12 +119,8 @@ public class HomeController {
 
         new Thread(searchTask).start();
     }
-
-
     @FXML
     private void recommend() {
-        ListVbox.getChildren().clear();
-
         if (recommendationsList.isEmpty()) {
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
@@ -129,8 +129,7 @@ public class HomeController {
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
                 description.setText("Your personal recommendations:");
-                ListVbox.getChildren().add(description);
-                refresh(recommendationsList); // Wyświetl pierwszą paczkę
+                refresh(recommendationsList);
             });
 
             recommendedMoviesTask.setOnFailed(event -> {
@@ -150,40 +149,51 @@ public class HomeController {
             refresh(recommendationsList); // Wyświetl pierwszą paczkę
         }
     }
-
     @FXML
     public void refresh(List<Movie> movies) {
         try {
+            ListVbox.getChildren().clear();
+            RatingVbox.getChildren().clear();
+
             if (movies == null || movies.isEmpty()) {
                 description.setText("No more data to display.");
                 return;
             }
-
-            int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
-
             if (currentStartIndex >= movies.size()) {
                 description.setText("No more data to display.");
                 return;
             }
 
-            ListVbox.getChildren().clear();
+            description2.setText("Your ratings:");
             ListVbox.getChildren().add(description);
+            RatingVbox.getChildren().add(description2);
+            int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
 
             for (int i = currentStartIndex; i < endIndex; i++) {
                 HBox hBox = new HBox(10);
-
+                VBox vBox = new VBox();
                 Label title = new Label();
                 Label genre = new Label();
                 org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating();
+                Button IMDb = new Button("IMDb");
 
                 Movie movie = movies.get(i);
-                title.setText("Movie title: " + movie.getTitle());
-                genre.setText("Genre: " + movie.getGenre());
+                title.setText(movie.getTitle());
+                title.setFont(Font.font("system", FontWeight.BOLD, FontPosture.REGULAR, 15));
+                genre.setText(movie.getGenre());
+                //ratingControl.setPrefHeight(38);
+                ratingControl.setPadding(new Insets(0, 0, 6, 0));
 
+                //IMDb.setOnAction(event -> {
+                    //TODO IMDb link
+                //});
                 try {
                     Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
                     if (existingRating != null) {
                         ratingControl.setRating(existingRating.getRating());
+                    }
+                    else{
+                        ratingControl.setRating(0);
                     }
                 } catch (SQLException e) {
                     alertManager.showError("Rating fetch error", e.getMessage());
@@ -203,8 +213,11 @@ public class HomeController {
                     }
                 });
 
-                hBox.getChildren().addAll(title, genre, ratingControl);
-                ListVbox.getChildren().add(hBox);
+                vBox.getChildren().addAll(title, genre);
+                ListVbox.getChildren().add(vBox);
+                hBox.getChildren().addAll(ratingControl, IMDb);
+                hBox.setAlignment(Pos.CENTER_RIGHT);
+                RatingVbox.getChildren().add(hBox);
             }
 
             currentStartIndex = endIndex;
@@ -216,9 +229,6 @@ public class HomeController {
         }
     }
 
-
-
-
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
         search();
@@ -229,7 +239,7 @@ public class HomeController {
     }
     @FXML
     public void onPlusButton(ActionEvent event) {
-
+        //TODO Adding new movie
     }
     @FXML
     public void onRefreshButton(ActionEvent event) {

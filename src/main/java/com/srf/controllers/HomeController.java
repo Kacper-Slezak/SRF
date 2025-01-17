@@ -5,6 +5,7 @@ import com.srf.dao.RatingDAO;
 import com.srf.models.Movie;
 import com.srf.models.User;
 import com.srf.models.Rating;
+import com.srf.services.RatingService;
 import com.srf.services.RecommendationService;
 import com.srf.services.SearchService;
 import com.srf.utils.DataSingleton;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//TODO odciążyć homecontroller scroll down
+//TODO odciążyć homecontroller scroll down      
 public class HomeController {
     @FXML
     public Button SearchButton;
@@ -44,9 +45,9 @@ public class HomeController {
 
     private RecommendationService recommendationService;
     private SearchService searchService;
+    private RatingService ratingService;
 
     private RatingDAO ratingDAO;
-    private MovieDAO movieDAO;
 
     private List<Movie> recommendationsList = new ArrayList<>();
     private List<Movie> searchList = new ArrayList<>();
@@ -66,26 +67,27 @@ public class HomeController {
     public void initialize() {
         try {
             ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
-            movieDAO = new MovieDAO(DatabaseConnection.getConnection());
+            MovieDAO movieDAO = new MovieDAO(DatabaseConnection.getConnection());
             recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
+            ratingService = new RatingService(ratingDAO);
             currentUser = data.getUser();
             NameLabel.setText(currentUser.getUsername());
         } catch (SQLException e) {
             Platform.runLater(() ->
                     alertManager.showError(
-                            "Błąd inicjalizacji",
-                            "Nie udało się nawiązać połączenia z bazą danych: " + e.getMessage()
+                            "Initialization Error",
+                            "Failed to connect to database: " + e.getMessage()
                     )
             );
         }
     }
+
     @FXML
     public void search() {
         ListVbox.getChildren().clear();
         description.setText("Wyniki wyszukiwania:");
 
-        //CO TU SIE ODJANIEPAWLA bo daje nulla
         String searchQuery = SearchTextField.getText();
         Task<List<Movie>> searchTask = new Task<>() {
             @Override
@@ -94,20 +96,27 @@ public class HomeController {
             }
         };
 
-        //null searchlist
-        searchList = searchTask.getValue();
-
         searchTask.setOnSucceeded(event -> {
-            currentStartIndex = 0;
-            previousWasRecommend = false;
-            refresh(searchList);
+            searchList = searchTask.getValue();
+            currentStartIndex = 0; // Reset indeksu
+            previousWasRecommend = false; // Oznacz, że wyświetlamy wyniki wyszukiwania
+            ListVbox.getChildren().add(description);
+            refresh(searchList); // Wyświetl pierwszą paczkę
         });
 
+        searchTask.setOnFailed(event -> {
+            Platform.runLater(() ->
+                    alertManager.showError(
+                            "Błąd wyszukiwania",
+                            "Nie udało się pobrać wyników wyszukiwania: " + searchTask.getException().getMessage()
+                    )
+            );
+        });
 
         new Thread(searchTask).start();
-
-        ListVbox.getChildren().add(description);
     }
+
+
     @FXML
     private void recommend() {
         ListVbox.getChildren().clear();
@@ -117,9 +126,11 @@ public class HomeController {
 
             recommendedMoviesTask.setOnSucceeded(event -> {
                 recommendationsList = recommendedMoviesTask.getValue();
-                currentStartIndex = 0;
+                currentStartIndex = 0; // Reset indeksu
+                previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
                 description.setText("Your personal recommendations:");
-                refresh(recommendationsList);
+                ListVbox.getChildren().add(description);
+                refresh(recommendationsList); // Wyświetl pierwszą paczkę
             });
 
             recommendedMoviesTask.setOnFailed(event -> {
@@ -132,76 +143,82 @@ public class HomeController {
             });
 
             new Thread(recommendedMoviesTask).start();
-        }   else {
-            previousWasRecommend = true;
-            refresh(recommendationsList);
+        } else {
+            currentStartIndex = 0; // Reset indeksu, jeśli lista już istnieje
+            previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
+            description.setText("Your personal recommendations:");
+            refresh(recommendationsList); // Wyświetl pierwszą paczkę
         }
-        ListVbox.getChildren().add(description);
     }
+
     @FXML
     public void refresh(List<Movie> movies) {
-        try{
-            //Platform.runLater(() -> {
-                    try {
-                        int endIndex = Math.min(currentStartIndex + pageSize, previousWasRecommend ? movies.size() : pageSize);
+        try {
+            if (movies == null || movies.isEmpty()) {
+                description.setText("No more data to display.");
+                return;
+            }
 
-                        if (previousWasRecommend && currentStartIndex >= movies.size()) {
-                            description.setText("No more recommendations.");
-                            return;
-                        }
+            int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
 
-                        for (int i = currentStartIndex; i < endIndex; i++) {
-                            HBox hBox = new HBox(10);
+            if (currentStartIndex >= movies.size()) {
+                description.setText("No more data to display.");
+                return;
+            }
 
-                            Label title = new Label();
-                            Label genre = new Label();
-                            org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating(); // JavaFX Rating control
+            ListVbox.getChildren().clear();
+            ListVbox.getChildren().add(description);
 
-                            Movie movie = movies.get(i);
-                            title.setText("Tytuł filmu: " + movie.getTitle());
-                            genre.setText("Gatunek: " + movie.getGenre());
+            for (int i = currentStartIndex; i < endIndex; i++) {
+                HBox hBox = new HBox(10);
 
-                            try {
-                                Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
-                                if (existingRating != null) {
-                                    ratingControl.setRating(existingRating.getRating());
+                Label title = new Label();
+                Label genre = new Label();
+                org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating();
+
+                Movie movie = movies.get(i);
+                title.setText("Movie title: " + movie.getTitle());
+                genre.setText("Genre: " + movie.getGenre());
+
+                try {
+                    Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
+                    if (existingRating != null) {
+                        ratingControl.setRating(existingRating.getRating());
+                    }
+                } catch (SQLException e) {
+                    alertManager.showError("Rating fetch error", e.getMessage());
+                }
+
+                // Add rating change listener
+                final Movie finalMovie = movie;
+                ratingControl.ratingProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal != null && !newVal.equals(oldVal)) {
+                        ratingService.saveRating(
+                                currentUser.getId(),
+                                finalMovie.getId(),
+                                newVal.doubleValue(),
+                                () -> {
                                 }
-                            } catch (SQLException e) {
-                                alertManager.showError(
-                                        "Błąd podczas pobierania oceny",
-                                        e.getMessage()
-                                );}
-
-                            final int movieId = movie.getId();
-                            ratingControl.ratingProperty().addListener((observable, oldValue, newValue) -> {
-                                if (newValue != null && !oldValue.equals(newValue)) {
-                                    saveRating(movieId, newValue.doubleValue());
-                                }
-                            });
-
-                            hBox.getChildren().addAll(title, genre, ratingControl);
-                            ListVbox.getChildren().add(hBox);
-                        }
-
-                        currentStartIndex = endIndex;
-                    } catch (Exception e) {
-                        Platform.runLater(() ->
-                                alertManager.showError(
-                                        "Błąd wyświetlania filmów",
-                                        e.getMessage()
-                                )
                         );
                     }
-            //});
-        } catch (NullPointerException e) {
+                });
+
+                hBox.getChildren().addAll(title, genre, ratingControl);
+                ListVbox.getChildren().add(hBox);
+            }
+
+            currentStartIndex = endIndex;
+        } catch (Exception e) {
             alertManager.showError(
-                    "Błąd listy filmów",
-                    "Upewnij się, że wygenerowałeś listę filmów lub wyszukałeś zanim odświeżyłeś"
+                    "Refresh Error",
+                    "Failed to refresh results: " + e.getMessage()
             );
         }
-
-
     }
+
+
+
+
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
         search();
@@ -218,72 +235,15 @@ public class HomeController {
     public void onRefreshButton(ActionEvent event) {
         if (previousWasRecommend) {
             refresh(recommendationsList);
-        } else{
+        } else {
             refresh(searchList);
         }
 
-    }
-    //TODO rating service do zrobienia, imo jedyne pozyteczne odciazenie homea
-    private void saveRating(int movieId, double ratingValue) {
-        System.out.println("Saving rating: movieId=" + movieId + ", rating=" + ratingValue);
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws SQLException {
-                try {
-                    // Najpierw sprawdzamy czy ocena już istnieje
-                    Rating existingRating = ratingDAO.findRating(currentUser.getId(), movieId);
 
-                    if (existingRating != null) {
-                        // Aktualizacja istniejącej oceny
-                        existingRating.setRating(ratingValue);
-                        ratingDAO.updateRating(existingRating);
-                        System.out.println("Updated existing rating");
-                    } else {
-                        // Dodanie nowej oceny
-                        Rating nowaOcena = new Rating(
-                                currentUser.getId(),
-                                movieId,
-                                ratingValue
-                        );
-                        ratingDAO.addRating(nowaOcena);
-                        System.out.println("Added new rating");
-                    }
-                    return null;
-                } catch (Exception e) {
-                    alertManager.showError(
-                            "Rating save error",
-                            e.getMessage()
-                    );
-                    throw new SQLException("Błąd podczas zapisywania oceny: " + e.getMessage());
-                }
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            System.out.println("Rating saved successfully");
-            Platform.runLater(() -> {
-                alertManager.showInfo(
-                        "Sukces",
-                        "Ocena została zapisana pomyślnie"
-                );
-                recommendationsList.clear();
-            });
-        });
-
-        task.setOnFailed(event -> {
-            System.err.println("Rating save failed: " + task.getException().getMessage());
-            Platform.runLater(() ->
-                    alertManager.showError(
-                            "Błąd zapisu",
-                            "Nie udało się zapisać oceny: " + task.getException().getMessage()
-                    )
-            );
-        });
-
-        executorService.submit(task);
     }
 
     public void onClose() {
         executorService.shutdown();
+        ratingService.shutdown();
     }
 }

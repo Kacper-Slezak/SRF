@@ -14,7 +14,7 @@ public class SceneManager {
     AlertManager alertManager = AlertManager.getInstance();
 
     public void showPrimaryScene() {
-        String sceneName = "/com/srf/login.fxml";
+        String sceneName = "/com/srf/movieCreator.fxml";
         try {
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
@@ -38,6 +38,10 @@ public class SceneManager {
     }
     public void switchToRegistrationScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/registration.fxml";
+        switchScene(event, sceneName);
+    }
+    public void switchToMovieCreatorScene(ActionEvent event) throws IOException {
+        String sceneName = "/com/srf/movieCreator.fxml";
         switchScene(event, sceneName);
     }
 

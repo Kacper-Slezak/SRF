@@ -33,7 +33,7 @@ public class RecommendationService {
             protected List<Movie> call() throws Exception {
                 try {
                     System.out.println("=== Starting recommendation generation for user " + userId + " ===");
-                    updateProgress(0, 100);
+                    updateProgress(0,   100);
 
                     // Sprawdź cache
                     if (isCacheValid(userId)) {
@@ -229,5 +229,10 @@ public class RecommendationService {
         }
         return movies;
     }
+    public void invalidateCache(int userId) {
+        recommendationsCache.remove(userId); // Usuń cache dla danego użytkownika
+        System.out.println("Cache invalidated for user " + userId);
+    }
+
 
 }

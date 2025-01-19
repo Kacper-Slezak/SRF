@@ -2,12 +2,14 @@ package com.srf.controllers;
 
 import com.srf.dao.MovieDAO;
 import com.srf.dao.RatingDAO;
+import com.srf.dao.imdbDAO;
 import com.srf.models.Movie;
 import com.srf.models.User;
 import com.srf.models.Rating;
 import com.srf.services.RatingService;
 import com.srf.services.RecommendationService;
 import com.srf.services.SearchService;
+import com.srf.services.imdbService;
 import com.srf.utils.DataSingleton;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.AlertManager;
@@ -60,6 +62,7 @@ public class HomeController {
     private List<Movie> searchList = new ArrayList<>();
 
     private boolean previousWasRecommend = false;
+    private boolean isNewRatingAdded = false;
     private int currentStartIndex = 0;
     private static final int pageSize = 6;
 
@@ -76,6 +79,8 @@ public class HomeController {
         try {
             ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
             MovieDAO movieDAO = new MovieDAO(DatabaseConnection.getConnection());
+            imdbDAO imdbDAO = new imdbDAO   (DatabaseConnection.getConnection());
+            imdbService imdbService = new imdbService(imdbDAO);
             recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
             ratingService = new RatingService(ratingDAO);
@@ -121,10 +126,12 @@ public class HomeController {
     }
     @FXML
     private void recommend() {
-        if (recommendationsList.isEmpty()) {
+        if (recommendationsList.isEmpty() || isNewRatingAdded) {
+            recommendationService.invalidateCache(currentUser.getId());
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
             recommendedMoviesTask.setOnSucceeded(event -> {
+                    isNewRatingAdded = false;
                 recommendationsList = recommendedMoviesTask.getValue();
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
@@ -184,9 +191,7 @@ public class HomeController {
                 //ratingControl.setPrefHeight(38);
                 ratingControl.setPadding(new Insets(0, 0, 6, 0));
 
-                //IMDb.setOnAction(event -> {
-                    //TODO IMDb link
-                //});
+                IMDb.setOnAction(event -> onIMDbButtonClick(movie.getId()));
                 try {
                     Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
                     if (existingRating != null) {
@@ -203,6 +208,7 @@ public class HomeController {
                 final Movie finalMovie = movie;
                 ratingControl.ratingProperty().addListener((obs, oldVal, newVal) -> {
                     if (newVal != null && !newVal.equals(oldVal)) {
+                        isNewRatingAdded = true;
                         ratingService.saveRating(
                                 currentUser.getId(),
                                 finalMovie.getId(),
@@ -228,6 +234,21 @@ public class HomeController {
             );
         }
     }
+
+    @FXML
+    private void onIMDbButtonClick(int movieId) {
+        String url = imdbService.fetchImdbUrl(movieId);
+        if (url != null) {
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } catch (Exception e) {
+                alertManager.showError("Error", "Unable to open the link: " + e.getMessage());
+            }
+        } else {
+            alertManager.showError("Error", "No IMDb link available for this movie.");
+        }
+    }
+
 
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {

@@ -13,6 +13,7 @@ import com.srf.services.imdbService;
 import com.srf.utils.DataSingleton;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.AlertManager;
+import com.srf.utils.SceneManager;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -29,6 +30,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +70,7 @@ public class HomeController {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
+    SceneManager sceneManager = SceneManager.getInstance();
 
     private User currentUser;
     DataSingleton data = DataSingleton.getInstance();
@@ -248,8 +251,6 @@ public class HomeController {
             alertManager.showError("Error", "No IMDb link available for this movie.");
         }
     }
-
-
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
         search();
@@ -260,7 +261,11 @@ public class HomeController {
     }
     @FXML
     public void onPlusButton(ActionEvent event) {
-        //TODO Adding new movie
+        try {
+            sceneManager.switchToMovieCreatorScene(event);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     @FXML
     public void onRefreshButton(ActionEvent event) {

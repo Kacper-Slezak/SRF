@@ -31,7 +31,7 @@
       <Label text="Already have an account?" />
       <Button fx:id="logInButton" mnemonicParsing="false" onAction="#onLoginButton" text="Log in" />
     </VBox>
-   <Label layoutX="10.0" layoutY="10.0" text="SRF">
+   <Label layoutX="20.0" layoutY="10.0" text="SRF">
       <font>
          <Font name="System Bold" size="20.0" />
       </font>

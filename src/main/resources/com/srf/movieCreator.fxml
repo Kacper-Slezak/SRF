@@ -24,7 +24,7 @@
         <Label text="Title" />
         <TextField fx:id="titleTextField" />
       <Label text="Genres" />
-      <CheckComboBox fx:id="genresCheckComboBox" prefWidth="300.0" >
+      <CheckComboBox fx:id="genresCheckComboBox" prefWidth="300.0">
       </CheckComboBox>
         <Label text="IMDb link" />
       <TextField fx:id="IMDbLinkTextField" />
@@ -36,7 +36,7 @@
             </VBox.margin></Button>
         <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancelButton" text="Cancel" />
     </VBox>
-    <Label layoutX="10.0" layoutY="10.0" text="SRF">
+    <Label layoutX="20.0" layoutY="10.0" text="SRF">
         <font>
             <Font name="System Bold" size="20.0" />
         </font>

@@ -41,8 +41,6 @@ public class HomeController {
     @FXML
     public Button SearchButton;
     @FXML
-    public Button RefreshButton;
-    @FXML
     public TextField SearchTextField;
     @FXML
     public VBox ListVbox;
@@ -52,16 +50,20 @@ public class HomeController {
     public Label NameLabel;
     @FXML
     public VBox RatingVbox;
-
+    @FXML
+    public Button NextPageButton;
+    @FXML
+    public Button PreviousPageButton;
 
     private RecommendationService recommendationService;
     private SearchService searchService;
     private RatingService ratingService;
-
     private RatingDAO ratingDAO;
-
     private List<Movie> recommendationsList = new ArrayList<>();
     private List<Movie> searchList = new ArrayList<>();
+    private User currentUser;
+    private Label moviesDescription = new Label();
+    private Label ratingsDescription = new Label();
 
     private boolean previousWasRecommend = false;
     private boolean isNewRatingAdded = false;
@@ -70,12 +72,8 @@ public class HomeController {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
-    SceneManager sceneManager = SceneManager.getInstance();
-
-    private User currentUser;
-    DataSingleton data = DataSingleton.getInstance();
-    Label description = new Label();
-    Label description2 = new Label();
+    private final SceneManager sceneManager = SceneManager.getInstance();
+    private final DataSingleton data = DataSingleton.getInstance();
 
     @FXML
     public void initialize() {
@@ -88,7 +86,7 @@ public class HomeController {
             searchService = new SearchService(movieDAO);
             ratingService = new RatingService(ratingDAO);
             currentUser = data.getUser();
-            NameLabel.setText(currentUser.getUsername());
+            NameLabel.setText("Hello " + currentUser.getUsername()+"!");
         } catch (SQLException e) {
             Platform.runLater(() ->
                     alertManager.showError(
@@ -109,7 +107,7 @@ public class HomeController {
         };
 
         searchTask.setOnSucceeded(event -> {
-            description.setText("Search Results:");
+            moviesDescription.setText("Search Results:");
             searchList = searchTask.getValue();
             currentStartIndex = 0; // Reset indeksu
             previousWasRecommend = false; // Oznacz, że wyświetlamy wyniki wyszukiwania
@@ -138,7 +136,7 @@ public class HomeController {
                 recommendationsList = recommendedMoviesTask.getValue();
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
-                description.setText("Your personal recommendations:");
+                moviesDescription.setText("Your personal recommendations:");
                 refresh(recommendationsList);
             });
 
@@ -155,7 +153,7 @@ public class HomeController {
         } else {
             currentStartIndex = 0; // Reset indeksu, jeśli lista już istnieje
             previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
-            description.setText("Your personal recommendations:");
+            moviesDescription.setText("Your personal recommendations:");
             refresh(recommendationsList); // Wyświetl pierwszą paczkę
         }
     }
@@ -166,17 +164,13 @@ public class HomeController {
             RatingVbox.getChildren().clear();
 
             if (movies == null || movies.isEmpty()) {
-                description.setText("No more data to display.");
-                return;
-            }
-            if (currentStartIndex >= movies.size()) {
-                description.setText("No more data to display.");
+                alertManager.showInfo("Movie information", "No more movies to display");
                 return;
             }
 
-            description2.setText("Your ratings:");
-            ListVbox.getChildren().add(description);
-            RatingVbox.getChildren().add(description2);
+            ratingsDescription.setText("Your ratings:");
+            ListVbox.getChildren().add(moviesDescription);
+            RatingVbox.getChildren().add(ratingsDescription);
             int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
 
             for (int i = currentStartIndex; i < endIndex; i++) {
@@ -191,7 +185,6 @@ public class HomeController {
                 title.setText(movie.getTitle());
                 title.setFont(Font.font("system", FontWeight.BOLD, FontPosture.REGULAR, 15));
                 genre.setText(movie.getGenre());
-                //ratingControl.setPrefHeight(38);
                 ratingControl.setPadding(new Insets(0, 0, 6, 0));
 
                 IMDb.setOnAction(event -> onIMDbButtonClick(movie.getId()));
@@ -229,7 +222,7 @@ public class HomeController {
                 RatingVbox.getChildren().add(hBox);
             }
 
-            currentStartIndex = endIndex;
+            //currentStartIndex = endIndex;
         } catch (Exception e) {
             alertManager.showError(
                     "Refresh Error",
@@ -262,24 +255,59 @@ public class HomeController {
     @FXML
     public void onPlusButton(ActionEvent event) {
         try {
+            //TODO check if user rated enough
             sceneManager.switchToMovieCreatorScene(event);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     @FXML
-    public void onRefreshButton(ActionEvent event) {
+    public void onNextPageButton(ActionEvent event) {
+        currentStartIndex = currentStartIndex + pageSize;
         if (previousWasRecommend) {
-            refresh(recommendationsList);
+            if (currentStartIndex >= recommendationsList.size()) {
+                alertManager.showInfo("Page information", "No more pages to display.");
+                currentStartIndex = currentStartIndex - pageSize;
+            }
+            else{
+                refresh(recommendationsList);
+            }
         } else {
-            refresh(searchList);
+            if (currentStartIndex >= searchList.size()) {
+                alertManager.showInfo("Page information", "No more pages to display.");
+                currentStartIndex = currentStartIndex - pageSize;
+            }
+            else{
+                refresh(searchList);
+            }
+        }
+    }
+    @FXML
+    public void onPreviousPageButton(ActionEvent event) {
+        //TODO naprawic bo watki to pierdola
+        // dziala na debuggerze nei dziala normalnie
+        currentStartIndex = currentStartIndex - pageSize;
+        if (currentStartIndex< 0) {
+            alertManager.showInfo("Page information", "No previous pages to display.");
+            currentStartIndex = 0;
+        }
+        else {
+            if (previousWasRecommend) {
+                refresh(recommendationsList);
+            } else {
+                refresh(searchList);
+            }
         }
 
 
     }
-
-    public void onClose() {
-        executorService.shutdown();
-        ratingService.shutdown();
+    @FXML
+    public void onLogOutButton(ActionEvent event) {
+        try {
+            alertManager.showInfo("Session Information", "Successfully logged out");
+            sceneManager.switchToLoginScene(event);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

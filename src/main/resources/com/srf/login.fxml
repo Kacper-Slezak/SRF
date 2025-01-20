@@ -23,7 +23,7 @@
       <Label text="Username" />
       <TextField fx:id="usernameTextField" />
       <Label text="Password" />
-      <PasswordField fx:id="passwordField" />
+      <PasswordField fx:id="passwordField" onAction="#onLogInButton"/>
       <Button fx:id="logInButton" mnemonicParsing="false" onAction="#onLogInButton" prefWidth="150.0" text="Log in">
          <VBox.margin>
             <Insets bottom="20.0" />
@@ -31,7 +31,7 @@
       <Label text="Don't have an account?" />
       <Button fx:id="registerButton" mnemonicParsing="false" onAction="#onRegisterButton" text="Register" />
    </VBox>
-   <Label layoutX="10.0" layoutY="10.0" text="SRF">
+   <Label layoutX="20.0" layoutY="10.0" text="SRF">
       <font>
          <Font name="System Bold" size="20.0" />
       </font>

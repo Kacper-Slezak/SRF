@@ -14,7 +14,7 @@ public class SceneManager {
     AlertManager alertManager = AlertManager.getInstance();
 
     public void showPrimaryScene() {
-        String sceneName = "/com/srf/movieCreator.fxml";
+        String sceneName = "/com/srf/login.fxml";
         try {
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));

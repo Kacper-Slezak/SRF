@@ -30,14 +30,23 @@ public class MovieDAO {
         return movies;
     }
 
-    public void addMovie(Movie movie) throws SQLException {
+    public int addMovie(Movie movie) throws SQLException {
         String sql = "INSERT INTO movies (title, genre) VALUES (?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, movie.getTitle());
             statement.setString(2, movie.getGenre());
             statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Pobranie ID nowego filmu
+                } else {
+                    throw new SQLException("Nie udało się uzyskać ID nowego filmu.");
+                }
+            }
         }
     }
+
 }
 
 

@@ -9,89 +9,59 @@
     <children>
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
          <top>
-                <HBox alignment="CENTER_LEFT" prefHeight="15.0" prefWidth="500.0" BorderPane.alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
                     <children>
                   <Label minWidth="39.0" text="SRF">
                      <font>
                         <Font name="System Bold" size="20.0" />
                      </font>
                      <HBox.margin>
-                        <Insets right="10.0" />
+                        <Insets left="5.0" right="10.0" />
                      </HBox.margin>
                   </Label>
-                  <Button fx:id="GenerateRecommendationsButton" mnemonicParsing="false" onAction="#onGenerateRecommendationsButton" prefHeight="30.0" prefWidth="190.0" text="Generate Recommendations">
+                  <Button fx:id="GenerateRecommendationsButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onGenerateRecommendationsButton" prefHeight="30.0" prefWidth="180.0" text="Generate recommendations">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                        <TextField fx:id="SearchTextField" prefHeight="30.0" prefWidth="280.0" />
-                        <Button fx:id="SearchButton" mnemonicParsing="false" onAction="#onSearchButton" prefHeight="30.0" prefWidth="60.0" text="Search">
+                        <TextField fx:id="SearchTextField" onAction="#onSearchButton" prefHeight="30.0" prefWidth="280.0" />
+                        <Button fx:id="SearchButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSearchButton" prefHeight="30.0" prefWidth="60.0" text="Search">
                      <HBox.margin>
-                        <Insets />
+                        <Insets right="10.0" />
                      </HBox.margin></Button>
+                  <Button fx:id="LogOut" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLogOutButton" prefHeight="30.0" prefWidth="60.0" text="Log out" />
                     </children>
                 </HBox>
          </top>
          <bottom>
-            <HBox prefHeight="20.0" prefWidth="600.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER">
                <children>
-                      <Button fx:id="RefreshButton" alignment="CENTER" mnemonicParsing="false" onAction="#onRefreshButton" prefHeight="30.0" prefWidth="533.0" text="Refresh">
-                     <font>
-                        <Font size="17.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </Button>
-                  <Button fx:id="PlusButton" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="40.0" prefWidth="45.0" text="+">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </Button>
+                   <Button fx:id="PreviousPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onPreviousPageButton" prefHeight="30.0" prefWidth="200.0" text="Previous page" />
+                   <Button fx:id="NextPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onNextPageButton" prefHeight="30.0" prefWidth="200.0" text="Next page" />
                </children>
             </HBox>
          </bottom>
          <center>
                 <VBox fx:id="ListVbox" prefHeight="500.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="Hello">
-                     <font>
-                        <Font size="45.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets top="52.0" />
-                     </VBox.margin>
-                     <padding>
-                        <Insets left="50.0" />
-                     </padding>
-                  </Label>
                   <Label fx:id="NameLabel">
                      <font>
-                        <Font size="24.0" />
+                        <Font name="System Bold" size="24.0" />
                      </font>
                      <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <padding>
-                        <Insets left="50.0" />
-                     </padding></Label>
-                  <Label text="Glad to see You here!">
+                        <Insets left="50.0" top="75.0" />
+                     </VBox.margin></Label>
+                  <Label text="Nice to see You here.">
                    <font>
                        <Font size="24.0" />
                    </font>
                      <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <padding>
                         <Insets left="50.0" />
-                     </padding></Label>
-                   <Label text="Please generate your recommendations, or search for Your favourites.">
+                     </VBox.margin></Label>
+                   <Label text="This is a personal movie recommendation app. You can rate movies and generate unique recommendations just for You." wrapText="true">
                      <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <padding>
                         <Insets left="50.0" />
-                     </padding></Label>
+                     </VBox.margin></Label>
                </children>
                <BorderPane.margin>
                   <Insets />
@@ -107,7 +77,7 @@
          <right>
             <VBox fx:id="RatingVbox" spacing="5.0" BorderPane.alignment="CENTER">
                 <children>
-                    <Label/>
+                    <Label />
                 </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="0.0" top="5.0" />
@@ -115,5 +85,10 @@
             </VBox>
          </right>
       </BorderPane>
+      <Button fx:id="PlusButton" layoutX="560.0" layoutY="360.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="30.0" prefWidth="30.0" text="+">
+         <padding>
+            <Insets bottom="2.0" />
+         </padding>
+      </Button>
     </children>
 </AnchorPane>

@@ -1,12 +1,12 @@
 package com.srf.utils;
 
 import com.srf.models.Movie;
-import com.srf.models.User;
 
 public class MovieSingleton {
     private static MovieSingleton instance;
 
     private Movie movie;
+    private boolean AddedRating = false;
 
     private MovieSingleton() {}
 
@@ -27,5 +27,12 @@ public class MovieSingleton {
     }
     public void setMovie(Movie movie) {
         this.movie = movie;
+    }
+
+    public void setAddedRating(boolean added) {
+        this.AddedRating = added;
+    }
+    public boolean getAddedRating() {
+        return AddedRating;
     }
 }

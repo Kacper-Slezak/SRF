@@ -57,6 +57,7 @@ public class MovieController {
     private void setRatingListener() {
         MovieRating.ratingProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.equals(oldVal)) {
+                movieSingleton.setAddedRating(true);
                 ratingService.saveRating(
                         userID,
                         movieID,

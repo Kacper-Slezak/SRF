@@ -22,7 +22,10 @@ public class SceneManager {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
 
             stage.setScene(new Scene(root, 1280, 720));
+
             stage.setTitle("SRF");
+            stage.setMinWidth(220);
+            stage.setMinHeight(400);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -32,27 +35,29 @@ public class SceneManager {
 
     public void switchToHomeScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/home.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 670, 670);
     }
     public void switchToLoginScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/login.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 400, 220);
     }
     public void switchToRegistrationScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/registration.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 500, 220);
     }
     public void switchToMovieCreatorScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/movieCreator.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 500, 340);
     }
 
-    public void switchScene(ActionEvent event, String sceneName) throws IOException {
+    public void switchScene(ActionEvent event, String sceneName, int Heigth, int Width) throws IOException {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             stage.getScene().setRoot(root);
+            stage.setMinWidth(Width);
+            stage.setMinHeight(Heigth);
             stage.show();
         } catch (IOException e) {
             alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);

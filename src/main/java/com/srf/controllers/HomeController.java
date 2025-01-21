@@ -12,6 +12,7 @@ import com.srf.services.imdbService;
 import com.srf.utils.*;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -61,9 +62,8 @@ public class HomeController {
     private Label ratingsDescription = new Label();
 
     private boolean previousWasRecommend = false;
-    private boolean isNewRatingAdded = false;
     private int currentStartIndex = 0;
-    private static final int pageSize = 6;
+    private static final int pageSize = 7;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
@@ -123,12 +123,12 @@ public class HomeController {
     }
     @FXML
     private void recommend() {
-        if (recommendationsList.isEmpty() || isNewRatingAdded) {
+        if (recommendationsList.isEmpty() || movieSingleton.getAddedRating()) {
             recommendationService.invalidateCache(currentUser.getId());
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
             recommendedMoviesTask.setOnSucceeded(event -> {
-                    isNewRatingAdded = false;
+                movieSingleton.setAddedRating(false);
                 recommendationsList = recommendedMoviesTask.getValue();
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
@@ -165,6 +165,8 @@ public class HomeController {
             descriptionBox.setHgrow(filler, Priority.ALWAYS);
             descriptionBox.getChildren().addAll(moviesDescription, filler, ratingsDescription);
             ratingsDescription.setText("Your ratings:");
+            ratingsDescription.setPadding(new Insets(0, 100, 0, 0));
+            moviesDescription.setPadding(new Insets(0, 0, 0, 100));
             MainVbox.getChildren().add(descriptionBox);
 
             int endIndex = Math.min(currentStartIndex + pageSize, movies.size());

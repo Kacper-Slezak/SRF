@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480" prefWidth="854" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.srf.controllers.HomeController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480" prefWidth="640" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.srf.controllers.HomeController">
          <top>
                 <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
                     <children>
@@ -39,7 +39,7 @@
                    <Button fx:id="PreviousPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onPreviousPageButton" prefHeight="30.0" prefWidth="200.0" text="Previous page" />
                    <Button fx:id="NextPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onNextPageButton" prefHeight="30.0" prefWidth="200.0" text="Next page" />
                    <Region HBox.hgrow="ALWAYS" />
-                   <Button fx:id="PlusButton" layoutX="560.0" layoutY="360.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="30.0" prefWidth="30.0" text="+">
+                   <Button fx:id="PlusButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="30.0" prefWidth="30.0" text="+">
                        <padding>
                            <Insets bottom="2.0" />
                        </padding>
@@ -50,12 +50,13 @@
          <center>
                 <VBox fx:id="MainVbox" spacing="10.0" BorderPane.alignment="CENTER">
                <children>
+                   <Region VBox.vgrow="ALWAYS"/>
                   <Label fx:id="NameLabel">
                      <font>
                         <Font name="System Bold" size="24.0" />
                      </font>
                      <VBox.margin>
-                        <Insets left="50.0" top="75.0" />
+                        <Insets left="50.0"/>
                      </VBox.margin></Label>
                   <Label text="Nice to see You here.">
                    <font>
@@ -65,9 +66,10 @@
                         <Insets left="50.0" />
                      </VBox.margin></Label>
                    <Label text="This is a personal movie recommendation app. You can rate movies and generate unique recommendations just for You." wrapText="true">
-                     <VBox.margin>
+                       <VBox.margin>
                         <Insets left="50.0" />
                      </VBox.margin></Label>
+                   <Region VBox.vgrow="ALWAYS"/>
                </children>
                <BorderPane.margin>
                   <Insets />

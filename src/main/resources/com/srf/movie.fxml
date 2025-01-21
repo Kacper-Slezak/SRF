@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<HBox alignment="CENTER" prefWidth="800.0" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.MovieController">
+<HBox alignment="CENTER" prefWidth="1280" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.MovieController">
     <VBox>
         <Label fx:id="TitleLabel">
          <font>

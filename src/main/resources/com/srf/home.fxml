@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480" prefWidth="640" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.srf.controllers.HomeController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480" prefWidth="640" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.HomeController">
          <top>
                 <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
                     <children>
@@ -18,68 +18,56 @@
                      </HBox.margin>
                   </Label>
                   <Button fx:id="GenerateRecommendationsButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onGenerateRecommendationsButton" prefHeight="30.0" prefWidth="180.0" text="Generate recommendations">
-                     <HBox.margin>
+                      <HBox.margin>
                         <Insets right="10.0" />
-                     </HBox.margin>
+                      </HBox.margin>
                   </Button>
+                        <Button fx:id="PlusButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="30.0" prefWidth="90.0" text="Add movie">
+                        <HBox.margin>
+                            <Insets right="10.0" />
+                        </HBox.margin>
+                        </Button>
                         <Region HBox.hgrow="ALWAYS" />
                         <TextField fx:id="SearchTextField" onAction="#onSearchButton" prefHeight="30.0" prefWidth="280.0" />
                         <Button fx:id="SearchButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onSearchButton" prefHeight="30.0" prefWidth="60.0" text="Search">
                      <HBox.margin>
-                        <Insets right="10.0" />
+                        <Insets right="20.0" />
                      </HBox.margin></Button>
                   <Button fx:id="LogOutButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLogOutButton" prefHeight="30.0" prefWidth="60.0" text="Log out" />
                     </children>
                 </HBox>
          </top>
-         <bottom>
-            <HBox alignment="CENTER">
-               <children>
-                   <Region HBox.hgrow="ALWAYS" />
-                   <Button fx:id="PreviousPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onPreviousPageButton" prefHeight="30.0" prefWidth="200.0" text="Previous page" />
-                   <Button fx:id="NextPageButton" alignment="CENTER" mnemonicParsing="false" onAction="#onNextPageButton" prefHeight="30.0" prefWidth="200.0" text="Next page" />
-                   <Region HBox.hgrow="ALWAYS" />
-                   <Button fx:id="PlusButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#onPlusButton" prefHeight="30.0" prefWidth="30.0" text="+">
-                       <padding>
-                           <Insets bottom="2.0" />
-                       </padding>
-                   </Button>
-               </children>
-            </HBox>
-         </bottom>
-         <center>
-                <VBox fx:id="MainVbox" spacing="10.0" BorderPane.alignment="CENTER">
-               <children>
-                   <Region VBox.vgrow="ALWAYS"/>
-                  <Label fx:id="NameLabel">
-                     <font>
-                        <Font name="System Bold" size="24.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets left="50.0"/>
-                     </VBox.margin></Label>
-                  <Label text="Nice to see You here.">
-                   <font>
-                       <Font size="24.0" />
-                   </font>
-                     <VBox.margin>
-                        <Insets left="50.0" />
-                     </VBox.margin></Label>
-                   <Label text="This is a personal movie recommendation app. You can rate movies and generate unique recommendations just for You." wrapText="true">
-                       <VBox.margin>
-                        <Insets left="50.0" />
-                     </VBox.margin></Label>
-                   <Region VBox.vgrow="ALWAYS"/>
-               </children>
-               <BorderPane.margin>
-                  <Insets />
-               </BorderPane.margin>
-               <padding>
-                  <Insets bottom="5.0" left="0.0" right="0.0" top="5.0" />
-               </padding>
-                </VBox>
-         </center>
          <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="0.0" left="10.0" right="10.0" top="10.0" />
          </padding>
+   <center>
+      <ScrollPane fx:id="MainScrollPane" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" BorderPane.alignment="CENTER">
+        <content>
+            <VBox fx:id="MainVbox">
+                <Label fx:id="NameLabel">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets left="50.0" top="100.0" />
+                    </VBox.margin></Label>
+                <Label text="Nice to see You here.">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets left="50.0" />
+                    </VBox.margin></Label>
+                <Label text="This is a personal movie recommendation app. You can rate movies and generate unique recommendations just for You." wrapText="true">
+                    <VBox.margin>
+                        <Insets left="50.0" />
+                    </VBox.margin></Label>
+                <Region VBox.vgrow="ALWAYS" />
+            </VBox>
+        </content>
+         <BorderPane.margin>
+            <Insets bottom="10.0" top="10.0" />
+         </BorderPane.margin>
+      </ScrollPane>
+   </center>
       </BorderPane>

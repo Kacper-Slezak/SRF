@@ -7,6 +7,7 @@ public class MovieSingleton {
 
     private Movie movie;
     private boolean AddedRating = false;
+    private int movieIndex;
 
     private MovieSingleton() {}
 
@@ -35,4 +36,7 @@ public class MovieSingleton {
     public boolean getAddedRating() {
         return AddedRating;
     }
+
+    public void setMovieIndex(int movieIndex) {this.movieIndex = movieIndex;}
+    public int getMovieIndex() {return movieIndex;}
 }

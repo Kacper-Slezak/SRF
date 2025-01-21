@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -43,13 +44,11 @@ public class HomeController {
     @FXML
     public Label NameLabel;
     @FXML
-    public Button NextPageButton;
-    @FXML
-    public Button PreviousPageButton;
-    @FXML
     public Button GenerateRecommendationsButton;
     @FXML
     public Button LogOutButton;
+    @FXML
+    public ScrollPane MainScrollPane;
 
     private RecommendationService recommendationService;
     private SearchService searchService;
@@ -83,6 +82,8 @@ public class HomeController {
             ratingService = new RatingService(ratingDAO);
             currentUser = userSingleton.getUser();
             NameLabel.setText("Hello " + currentUser.getUsername()+"!");
+            MainScrollPane.setFitToWidth(true);
+            MainScrollPane.setStyle("-fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
         } catch (SQLException e) {
             Platform.runLater(() ->
                     alertManager.showError(
@@ -165,13 +166,14 @@ public class HomeController {
             descriptionBox.setHgrow(filler, Priority.ALWAYS);
             descriptionBox.getChildren().addAll(moviesDescription, filler, ratingsDescription);
             ratingsDescription.setText("Your ratings:");
-            ratingsDescription.setPadding(new Insets(0, 100, 0, 0));
-            moviesDescription.setPadding(new Insets(0, 0, 0, 100));
+            ratingsDescription.setPadding(new Insets(10, 130, 5, 0));
+            moviesDescription.setPadding(new Insets(10, 0, 5, 15));
             MainVbox.getChildren().add(descriptionBox);
 
-            int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
+            int endIndex = movies.size();
             for (int i = currentStartIndex; i < endIndex; i++) {
                 Movie movie = movies.get(i);
+                movieSingleton.setMovieIndex(i+1);
                 movieSingleton.setMovie(movie);
                 sceneManager.addMovie(MainVbox);
             }
@@ -199,46 +201,6 @@ public class HomeController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-    @FXML
-    public void onNextPageButton(ActionEvent event) {
-        currentStartIndex = currentStartIndex + pageSize;
-        if (previousWasRecommend) {
-            if (currentStartIndex >= recommendationsList.size()) {
-                alertManager.showInfo("Page information", "No more pages to display.");
-                currentStartIndex = currentStartIndex - pageSize;
-            }
-            else{
-                refresh(recommendationsList);
-            }
-        } else {
-            if (currentStartIndex >= searchList.size()) {
-                alertManager.showInfo("Page information", "No more pages to display.");
-                currentStartIndex = currentStartIndex - pageSize;
-            }
-            else{
-                refresh(searchList);
-            }
-        }
-    }
-    @FXML
-    public void onPreviousPageButton(ActionEvent event) {
-        //TODO naprawic bo watki to pierdola
-        // dziala na debuggerze nei dziala normalnie
-        currentStartIndex = currentStartIndex - pageSize;
-        if (currentStartIndex< 0) {
-            alertManager.showInfo("Page information", "No previous pages to display.");
-            currentStartIndex = 0;
-        }
-        else {
-            if (previousWasRecommend) {
-                refresh(recommendationsList);
-            } else {
-                refresh(searchList);
-            }
-        }
-
-
     }
     @FXML
     public void onLogOutButton(ActionEvent event) {

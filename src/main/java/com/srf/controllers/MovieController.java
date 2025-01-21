@@ -10,17 +10,19 @@ import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.MovieSingleton;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import org.controlsfx.control.Rating;
 
 import java.sql.SQLException;
 
 public class MovieController {
-    public Label TitleLabel;
     public Label GenresLabel;
     public Rating MovieRating;
-    public Button IMDbButton;
+    public Label MovieIndexLabel;
+    public Hyperlink TitleHyperlink;
 
     private RatingDAO ratingDAO;
     private RatingService ratingService;
@@ -29,6 +31,7 @@ public class MovieController {
     private final UserSingleton userSingleton = UserSingleton.getInstance();
     public Movie movie;
     public User user;
+    public int movieIndex;
     public int movieID;
     public int userID;
 
@@ -43,14 +46,22 @@ public class MovieController {
         movie = movieSingleton.getMovie();
         user = userSingleton.getUser();
 
+
         movieID = movieSingleton.getMovie().getId();
         userID = user.getId();
+        movieIndex = movieSingleton.getMovieIndex();
 
-        TitleLabel.setText(movie.getTitle());
+        MovieIndexLabel.setText(String.valueOf(movieIndex)+".");
         GenresLabel.setText(movie.getGenre());
 
         setExistingRating();
         setRatingListener();
+
+        TitleHyperlink.setText(movie.getTitle());
+        TitleHyperlink.setStyle("-fx-text-fill: black");
+        TitleHyperlink.setOnAction( e -> {
+            onIMDbButton(e);
+        });
 
     }
 

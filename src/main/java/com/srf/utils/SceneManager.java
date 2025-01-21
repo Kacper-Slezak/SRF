@@ -1,6 +1,5 @@
 package com.srf.utils;
 
-import com.srf.models.Movie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -60,6 +59,7 @@ public class SceneManager {
             stage.setMinHeight(Heigth);
             stage.show();
         } catch (IOException e) {
+            e.printStackTrace();
             alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
         }
     }

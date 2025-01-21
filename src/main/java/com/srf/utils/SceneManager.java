@@ -14,6 +14,8 @@ public class SceneManager {
     private static SceneManager instance;
     AlertManager alertManager = AlertManager.getInstance();
 
+    Scene currentScene;
+
     public void showPrimaryScene() {
         String sceneName = "/com/srf/login.fxml";
         try {
@@ -21,6 +23,8 @@ public class SceneManager {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
 
             stage.setScene(new Scene(root, 1280, 720));
+            stage.getScene().getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            currentScene = stage.getScene();
 
             stage.setTitle("SRF");
             stage.setMinWidth(220);
@@ -28,7 +32,7 @@ public class SceneManager {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
+            alertManager.showError( "Scene Error", "Could not load the scene: " + sceneName);
         }
     }
 
@@ -55,20 +59,14 @@ public class SceneManager {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             stage.getScene().setRoot(root);
+            currentScene = stage.getScene();
             stage.setMinWidth(Width);
             stage.setMinHeight(Heigth);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
+            alertManager.showError( "Scene Error", "Could not load the scene: " + sceneName);
         }
-    }
-
-    public static SceneManager getInstance() {
-        if (instance == null) {
-            instance = new SceneManager();
-        }
-        return instance;
     }
 
     public void addMovie(VBox MainVbox) {
@@ -79,5 +77,12 @@ public class SceneManager {
             throw new RuntimeException(e);
         }
         MainVbox.getChildren().add(root);
+    }
+
+    public static SceneManager getInstance() {
+        if (instance == null) {
+            instance = new SceneManager();
+        }
+        return instance;
     }
 }

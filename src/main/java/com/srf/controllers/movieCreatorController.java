@@ -3,7 +3,7 @@ package com.srf.controllers;
 import com.srf.dao.RatingDAO;
 import com.srf.services.RatingService;
 import com.srf.utils.AlertManager;
-import com.srf.utils.DataSingleton;
+import com.srf.utils.UserSingleton;
 import com.srf.utils.SceneManager;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,7 +31,7 @@ public class movieCreatorController {
 
     private RatingDAO ratingDAO;
 
-    DataSingleton data = DataSingleton.getInstance();
+    UserSingleton data = UserSingleton.getInstance();
     AlertManager alertManager = AlertManager.getInstance();
     SceneManager sceneManager = SceneManager.getInstance();
     RatingService ratingService;

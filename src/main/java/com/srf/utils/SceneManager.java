@@ -1,11 +1,13 @@
 package com.srf.utils;
 
+import com.srf.models.Movie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -19,8 +21,11 @@ public class SceneManager {
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
 
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 1280, 720));
+
             stage.setTitle("SRF");
+            stage.setMinWidth(220);
+            stage.setMinHeight(400);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,27 +35,29 @@ public class SceneManager {
 
     public void switchToHomeScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/home.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 670, 670);
     }
     public void switchToLoginScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/login.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 400, 220);
     }
     public void switchToRegistrationScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/registration.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 500, 220);
     }
     public void switchToMovieCreatorScene(ActionEvent event) throws IOException {
         String sceneName = "/com/srf/movieCreator.fxml";
-        switchScene(event, sceneName);
+        switchScene(event, sceneName, 500, 340);
     }
 
-    public void switchScene(ActionEvent event, String sceneName) throws IOException {
+    public void switchScene(ActionEvent event, String sceneName, int Heigth, int Width) throws IOException {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             stage.getScene().setRoot(root);
+            stage.setMinWidth(Width);
+            stage.setMinHeight(Heigth);
             stage.show();
         } catch (IOException e) {
             alertManager.showAlert(Alert.AlertType.ERROR, "Scene Error", "Could not load the scene: " + sceneName);
@@ -62,5 +69,15 @@ public class SceneManager {
             instance = new SceneManager();
         }
         return instance;
+    }
+
+    public void addMovie(VBox MainVbox) {
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(getClass().getResource("/com/srf/movie.fxml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        MainVbox.getChildren().add(root);
     }
 }

@@ -3,7 +3,7 @@ package com.srf.controllers;
 import com.srf.dao.UserDAO;
 import com.srf.models.User;
 import com.srf.utils.AlertManager;
-import com.srf.utils.DataSingleton;
+import com.srf.utils.UserSingleton;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.SceneManager;
 import javafx.event.ActionEvent;
@@ -31,7 +31,7 @@ public class LoginController {
     private AuthenticationService authenticationService;
     private User currentUser;
 
-    DataSingleton data = DataSingleton.getInstance();
+    UserSingleton data = UserSingleton.getInstance();
     AlertManager alertManager = AlertManager.getInstance();
     SceneManager sceneManager = SceneManager.getInstance();
 

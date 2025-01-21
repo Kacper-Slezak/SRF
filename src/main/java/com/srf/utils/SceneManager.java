@@ -1,11 +1,13 @@
 package com.srf.utils;
 
+import com.srf.models.Movie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -19,7 +21,7 @@ public class SceneManager {
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
 
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 1280, 720));
             stage.setTitle("SRF");
             stage.show();
         } catch (IOException e) {
@@ -62,5 +64,15 @@ public class SceneManager {
             instance = new SceneManager();
         }
         return instance;
+    }
+
+    public void addMovie(VBox MainVbox) {
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(getClass().getResource("/com/srf/movie.fxml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        MainVbox.getChildren().add(root);
     }
 }

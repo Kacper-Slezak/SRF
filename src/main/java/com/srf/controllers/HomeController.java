@@ -62,7 +62,7 @@ public class HomeController {
 
     private boolean previousWasRecommend = false;
     private int currentStartIndex = 0;
-    private static final int pageSize = 7;
+    private static final int maxSearchResult = 250;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
@@ -205,6 +205,7 @@ public class HomeController {
     @FXML
     public void onLogOutButton(ActionEvent event) {
         try {
+            recommendationService.invalidateCache(currentUser.getId());
             alertManager.showInfo("Session Information", "Successfully logged out");
             sceneManager.switchToLoginScene(event);
         } catch (IOException e) {

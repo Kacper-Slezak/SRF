@@ -6,39 +6,47 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.movieCreatorController">
-    <VBox layoutX="150.0" layoutY="40.0" prefWidth="300.0" spacing="10.0">
-        <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-        </padding>
-        <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="300.0" text="Create a movie" textAlignment="CENTER">
-            <font>
-                <Font size="27.0" />
-            </font>
-            <opaqueInsets>
-                <Insets />
-            </opaqueInsets>
-            <padding>
-                <Insets bottom="20.0" />
-            </padding></Label>
-        <Label text="Title" />
-        <TextField fx:id="titleTextField" />
-      <Label text="Genres" />
-      <CheckComboBox fx:id="genresCheckComboBox" prefWidth="300.0" >
+<BorderPane prefHeight="480" prefWidth="640" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.movieCreatorController">
+      <center>
+          <VBox maxWidth="-Infinity" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+              <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+              </padding>
+              <Region VBox.vgrow="ALWAYS" />
+              <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="300.0" text="Create a movie" textAlignment="CENTER">
+                  <font>
+                      <Font size="27.0" />
+                  </font>
+                  <opaqueInsets>
+                      <Insets />
+                  </opaqueInsets>
+                  <padding>
+                      <Insets bottom="20.0" />
+                  </padding>
+            </Label>
+              <Label text="Title" />
+              <TextField fx:id="titleTextField" />
+            <Label text="Genres" />
+            <CheckComboBox fx:id="genresCheckComboBox" prefWidth="300.0">
       </CheckComboBox>
-        <Label text="IMDb link" />
-      <TextField fx:id="IMDbLinkTextField" />
-      <Label layoutX="20.0" layoutY="151.0" text="Your rating" />
-        <Rating fx:id="movieRating" />
-        <Button fx:id="createButton" mnemonicParsing="false" onAction="#onCreateButton" prefWidth="300.0" text="Create">
-            <VBox.margin>
-                <Insets bottom="20.0" />
-            </VBox.margin></Button>
-        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancelButton" text="Cancel" />
-    </VBox>
-    <Label layoutX="10.0" layoutY="10.0" text="SRF">
-        <font>
-            <Font name="System Bold" size="20.0" />
-        </font>
-    </Label>
-</AnchorPane>
+              <Label text="IMDb link" />
+            <TextField fx:id="IMDbLinkTextField" />
+            <Label layoutX="20.0" layoutY="151.0" text="Your rating" />
+              <Rating fx:id="movieRating" />
+              <Button fx:id="createButton" mnemonicParsing="false" onAction="#onCreateButton" prefWidth="300.0" text="Create">
+                  <VBox.margin>
+                      <Insets bottom="20.0" />
+                  </VBox.margin>
+            </Button>
+              <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancelButton" text="Cancel" />
+              <Region VBox.vgrow="ALWAYS" />
+          </VBox>
+      </center>
+      <top>
+          <Label text="SRF" BorderPane.alignment="CENTER">
+              <font>
+                  <Font name="System Bold" size="20.0" />
+              </font>
+          </Label>
+      </top>
+   </BorderPane>

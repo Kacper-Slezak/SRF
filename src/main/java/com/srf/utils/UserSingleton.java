@@ -2,22 +2,22 @@ package com.srf.utils;
 
 import com.srf.models.User;
 
-public class DataSingleton {
-    private static DataSingleton instance;
+public class UserSingleton {
+    private static UserSingleton instance;
 
     private User user;
 
-    private DataSingleton() {}
+    private UserSingleton() {}
 
     static {
         try{
-            instance = new DataSingleton();
+            instance = new UserSingleton();
         } catch (Exception e){
             throw new RuntimeException("Singleton exception");
         }
     }
 
-    public static DataSingleton getInstance(){
+    public static UserSingleton getInstance(){
         return instance;
     }
 

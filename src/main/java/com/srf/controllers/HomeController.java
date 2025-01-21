@@ -5,30 +5,25 @@ import com.srf.dao.RatingDAO;
 import com.srf.dao.imdbDAO;
 import com.srf.models.Movie;
 import com.srf.models.User;
-import com.srf.models.Rating;
 import com.srf.services.RatingService;
 import com.srf.services.RecommendationService;
 import com.srf.services.SearchService;
 import com.srf.services.imdbService;
-import com.srf.utils.DataSingleton;
-import com.srf.utils.DatabaseConnection;
-import com.srf.utils.AlertManager;
-import com.srf.utils.SceneManager;
+import com.srf.utils.*;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 
 import javafx.event.ActionEvent;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -41,41 +36,39 @@ public class HomeController {
     @FXML
     public Button SearchButton;
     @FXML
-    public Button RefreshButton;
-    @FXML
     public TextField SearchTextField;
     @FXML
-    public VBox ListVbox;
+    public VBox MainVbox;
     @FXML
     public Button PlusButton;
     @FXML
     public Label NameLabel;
     @FXML
-    public VBox RatingVbox;
-
+    public Button GenerateRecommendationsButton;
+    @FXML
+    public Button LogOutButton;
+    @FXML
+    public ScrollPane MainScrollPane;
 
     private RecommendationService recommendationService;
     private SearchService searchService;
     private RatingService ratingService;
-
     private RatingDAO ratingDAO;
-
     private List<Movie> recommendationsList = new ArrayList<>();
     private List<Movie> searchList = new ArrayList<>();
+    private User currentUser;
+    private Label moviesDescription = new Label();
+    private Label ratingsDescription = new Label();
 
     private boolean previousWasRecommend = false;
-    private boolean isNewRatingAdded = false;
     private int currentStartIndex = 0;
-    private static final int pageSize = 6;
+    private static final int pageSize = 7;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
-    SceneManager sceneManager = SceneManager.getInstance();
-
-    private User currentUser;
-    DataSingleton data = DataSingleton.getInstance();
-    Label description = new Label();
-    Label description2 = new Label();
+    private final SceneManager sceneManager = SceneManager.getInstance();
+    private final UserSingleton userSingleton = UserSingleton.getInstance();
+    private final MovieSingleton movieSingleton = MovieSingleton.getInstance();
 
     @FXML
     public void initialize() {
@@ -87,8 +80,10 @@ public class HomeController {
             recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
             ratingService = new RatingService(ratingDAO);
-            currentUser = data.getUser();
-            NameLabel.setText(currentUser.getUsername());
+            currentUser = userSingleton.getUser();
+            NameLabel.setText("Hello " + currentUser.getUsername()+"!");
+            MainScrollPane.setFitToWidth(true);
+            MainScrollPane.setStyle("-fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
         } catch (SQLException e) {
             Platform.runLater(() ->
                     alertManager.showError(
@@ -109,7 +104,7 @@ public class HomeController {
         };
 
         searchTask.setOnSucceeded(event -> {
-            description.setText("Search Results:");
+            moviesDescription.setText("Search Results:");
             searchList = searchTask.getValue();
             currentStartIndex = 0; // Reset indeksu
             previousWasRecommend = false; // Oznacz, że wyświetlamy wyniki wyszukiwania
@@ -129,16 +124,16 @@ public class HomeController {
     }
     @FXML
     private void recommend() {
-        if (recommendationsList.isEmpty() || isNewRatingAdded) {
+        if (recommendationsList.isEmpty() || movieSingleton.getAddedRating()) {
             recommendationService.invalidateCache(currentUser.getId());
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
             recommendedMoviesTask.setOnSucceeded(event -> {
-                    isNewRatingAdded = false;
+                movieSingleton.setAddedRating(false);
                 recommendationsList = recommendedMoviesTask.getValue();
                 currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
-                description.setText("Your personal recommendations:");
+                moviesDescription.setText("Your personal recommendations:");
                 refresh(recommendationsList);
             });
 
@@ -153,83 +148,35 @@ public class HomeController {
 
             new Thread(recommendedMoviesTask).start();
         } else {
-            currentStartIndex = 0; // Reset indeksu, jeśli lista już istnieje
-            previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
-            description.setText("Your personal recommendations:");
-            refresh(recommendationsList); // Wyświetl pierwszą paczkę
+            alertManager.showInfo("Generation error", "Rate a movie to generate new recommendations");
         }
     }
     @FXML
     public void refresh(List<Movie> movies) {
         try {
-            ListVbox.getChildren().clear();
-            RatingVbox.getChildren().clear();
+            MainVbox.getChildren().clear();
 
             if (movies == null || movies.isEmpty()) {
-                description.setText("No more data to display.");
-                return;
-            }
-            if (currentStartIndex >= movies.size()) {
-                description.setText("No more data to display.");
+                alertManager.showInfo("Movie information", "No more movies to display");
                 return;
             }
 
-            description2.setText("Your ratings:");
-            ListVbox.getChildren().add(description);
-            RatingVbox.getChildren().add(description2);
-            int endIndex = Math.min(currentStartIndex + pageSize, movies.size());
+            HBox descriptionBox = new HBox();
+            Region filler = new Region();
+            descriptionBox.setHgrow(filler, Priority.ALWAYS);
+            descriptionBox.getChildren().addAll(moviesDescription, filler, ratingsDescription);
+            ratingsDescription.setText("Your ratings:");
+            ratingsDescription.setPadding(new Insets(10, 130, 5, 0));
+            moviesDescription.setPadding(new Insets(10, 0, 5, 15));
+            MainVbox.getChildren().add(descriptionBox);
 
+            int endIndex = movies.size();
             for (int i = currentStartIndex; i < endIndex; i++) {
-                HBox hBox = new HBox(10);
-                VBox vBox = new VBox();
-                Label title = new Label();
-                Label genre = new Label();
-                org.controlsfx.control.Rating ratingControl = new org.controlsfx.control.Rating();
-                Button IMDb = new Button("IMDb");
-
                 Movie movie = movies.get(i);
-                title.setText(movie.getTitle());
-                title.setFont(Font.font("system", FontWeight.BOLD, FontPosture.REGULAR, 15));
-                genre.setText(movie.getGenre());
-                //ratingControl.setPrefHeight(38);
-                ratingControl.setPadding(new Insets(0, 0, 6, 0));
-
-                IMDb.setOnAction(event -> onIMDbButtonClick(movie.getId()));
-                try {
-                    Rating existingRating = ratingDAO.findRating(currentUser.getId(), movie.getId());
-                    if (existingRating != null) {
-                        ratingControl.setRating(existingRating.getRating());
-                    }
-                    else{
-                        ratingControl.setRating(0);
-                    }
-                } catch (SQLException e) {
-                    alertManager.showError("Rating fetch error", e.getMessage());
-                }
-
-                // Add rating change listener
-                final Movie finalMovie = movie;
-                ratingControl.ratingProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal != null && !newVal.equals(oldVal)) {
-                        isNewRatingAdded = true;
-                        ratingService.saveRating(
-                                currentUser.getId(),
-                                finalMovie.getId(),
-                                newVal.doubleValue(),
-                                () -> {
-                                }
-                        );
-                    }
-                });
-
-                vBox.getChildren().addAll(title, genre);
-                ListVbox.getChildren().add(vBox);
-                hBox.getChildren().addAll(ratingControl, IMDb);
-                hBox.setAlignment(Pos.CENTER_RIGHT);
-                RatingVbox.getChildren().add(hBox);
+                movieSingleton.setMovieIndex(i+1);
+                movieSingleton.setMovie(movie);
+                sceneManager.addMovie(MainVbox);
             }
-
-            currentStartIndex = endIndex;
         } catch (Exception e) {
             alertManager.showError(
                     "Refresh Error",
@@ -238,19 +185,6 @@ public class HomeController {
         }
     }
 
-    @FXML
-    private void onIMDbButtonClick(int movieId) {
-        String url = imdbService.fetchImdbUrl(movieId);
-        if (url != null) {
-            try {
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-            } catch (Exception e) {
-                alertManager.showError("Error", "Unable to open the link: " + e.getMessage());
-            }
-        } else {
-            alertManager.showError("Error", "No IMDb link available for this movie.");
-        }
-    }
     @FXML
     public void onSearchButton(ActionEvent actionEvent) {
         search();
@@ -262,24 +196,19 @@ public class HomeController {
     @FXML
     public void onPlusButton(ActionEvent event) {
         try {
+            //TODO check if user rated enough
             sceneManager.switchToMovieCreatorScene(event);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     @FXML
-    public void onRefreshButton(ActionEvent event) {
-        if (previousWasRecommend) {
-            refresh(recommendationsList);
-        } else {
-            refresh(searchList);
+    public void onLogOutButton(ActionEvent event) {
+        try {
+            alertManager.showInfo("Session Information", "Successfully logged out");
+            sceneManager.switchToLoginScene(event);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-
-    }
-
-    public void onClose() {
-        executorService.shutdown();
-        ratingService.shutdown();
     }
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.controlsfx.control.*?>
+
+<HBox alignment="CENTER" prefWidth="1280" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.MovieController">
+    <Label fx:id="MovieIndexLabel" contentDisplay="CENTER" prefWidth="40.0" text="nr.">
+        <font>
+            <Font name="System Bold" size="18.0" />
+        </font></Label>
+    <VBox>
+        <Hyperlink fx:id="TitleHyperlink" text="Movie Title">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font></Hyperlink>
+        <Label fx:id="GenresLabel" text="Genres">
+         <padding>
+            <Insets left="10.0" />
+         </padding></Label>
+    </VBox>
+    <Region HBox.hgrow="ALWAYS" />
+    <Rating fx:id="MovieRating" maxHeight="30.0" />
+   <padding>
+      <Insets bottom="10.0" left="25.0" right="25.0" top="10.0" />
+   </padding>
+</HBox>

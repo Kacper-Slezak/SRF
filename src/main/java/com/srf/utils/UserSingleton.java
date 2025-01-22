@@ -3,7 +3,7 @@ package com.srf.utils;
 import com.srf.models.User;
 
 public class UserSingleton {
-    private static UserSingleton instance;
+    private static final UserSingleton instance;
 
     private User user;
 

@@ -13,7 +13,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import com.srf.services.AuthenticationService;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -28,13 +27,11 @@ public class LoginController {
     public Button registerButton;
 
     private AuthenticationService authenticationService;
-    private User currentUser;
 
     UserSingleton data = UserSingleton.getInstance();
     AlertManager alertManager = AlertManager.getInstance();
     SceneManager sceneManager = SceneManager.getInstance();
 
-    @FXML
     public void initialize() {
         try {
             UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
@@ -47,45 +44,37 @@ public class LoginController {
     }
 
     @FXML
-    public void onLogInButton(ActionEvent actionEvent) throws IOException {
-        // Sprawdzenie, czy serwis został poprawnie zainicjalizowany
+    public void onLogInButton(ActionEvent actionEvent) {
         if (authenticationService == null) {
             alertManager.showError( "System Error",
                     "System initialization failed. Please restart the application.");
             return;
         }
 
-        // Pobranie danych z pól tekstowych
         String username = usernameTextField.getText();
         String password = passwordField.getText();
 
         try {
-            // Próba logowania za pomocą serwisu
             Optional<User> user = authenticationService.login(username, password);
 
             if (user.isPresent()) {
-                // Sukces: przekierowanie do ekranu głównego
                 alertManager.showInfo( "Success", "Login successful!");
-                currentUser = user.get();
+                User currentUser = user.get();
                 data.setUser(currentUser);
                 sceneManager.switchToHomeScene(actionEvent);
             } else {
-                // Nieudane logowanie: brak użytkownika lub nieprawidłowe hasło
                 alertManager.showError( "Login Error", "Invalid username or password.");
             }
         } catch (IllegalArgumentException e) {
-            // Obsługa błędów walidacji z serwisu
             alertManager.showError( "Validation Error", e.getMessage());
         } catch (SQLException e) {
-            // Obsługa problemów z bazą danych
             alertManager.showError(
                     "Database Error",
                     "Could not connect to database. Please try again later.");
         }
     }
-
     @FXML
-    public void onRegisterButton(ActionEvent actionEvent) throws IOException {
+    public void onRegisterButton(ActionEvent actionEvent) {
         sceneManager.switchToRegistrationScene(actionEvent);
     }
 }

@@ -5,10 +5,7 @@ import javafx.scene.control.Alert;
 public class AlertManager {
     private static AlertManager instance;
 
-    public AlertManager() {
-        AlertManager alertManager = this;
-    }
-
+    public AlertManager() {}
     public void showError(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -16,7 +13,6 @@ public class AlertManager {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
     public void showInfo(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -24,7 +20,6 @@ public class AlertManager {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
     public static AlertManager getInstance() {
         if (instance == null) {
             instance = new AlertManager();

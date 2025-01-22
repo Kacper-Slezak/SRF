@@ -9,7 +9,7 @@ import com.srf.utils.AlertManager;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.MovieSingleton;
-import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import org.controlsfx.control.Rating;
@@ -17,9 +17,13 @@ import org.controlsfx.control.Rating;
 import java.sql.SQLException;
 
 public class MovieController {
+    @FXML
     public Label GenresLabel;
+    @FXML
     public Rating MovieRating;
+    @FXML
     public Label MovieIndexLabel;
+    @FXML
     public Hyperlink TitleHyperlink;
 
     private RatingDAO ratingDAO;
@@ -49,7 +53,7 @@ public class MovieController {
         userID = user.getId();
         movieIndex = movieSingleton.getMovieIndex();
 
-        MovieIndexLabel.setText(String.valueOf(movieIndex)+".");
+        MovieIndexLabel.setText(movieIndex +".");
         GenresLabel.setText(movie.getGenre());
 
         setExistingRating();
@@ -57,12 +61,7 @@ public class MovieController {
 
         TitleHyperlink.setText(movie.getTitle());
         TitleHyperlink.setStyle("-fx-text-fill: black");
-        TitleHyperlink.setOnAction( e -> {
-            onIMDbButton(e);
-        });
-
     }
-
     private void setRatingListener() {
         MovieRating.ratingProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.equals(oldVal)) {
@@ -77,7 +76,6 @@ public class MovieController {
             }
         });
     }
-
     private void setExistingRating() {
         try {
             com.srf.models.Rating existingRating = ratingDAO.findRating(userID, movieID);
@@ -92,7 +90,8 @@ public class MovieController {
         }
     }
 
-    public void onIMDbButton(ActionEvent event) {
+    @FXML
+    public void onTitleHyperlink() {
         String url = IMDbService.fetchImdbUrl(movieID);
         if (url != null) {
             try {

@@ -1,6 +1,5 @@
 package com.srf.controllers;
 
-import com.srf.models.User;
 import com.srf.services.AuthenticationService;
 import com.srf.dao.UserDAO;
 import com.srf.utils.AlertManager;
@@ -8,32 +7,28 @@ import com.srf.utils.DatabaseConnection;
 import com.srf.utils.SceneManager;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class RegistrationController {
     @FXML
     public TextField usernameTextField;
-
     @FXML
     public PasswordField passwordField;
-
     @FXML
     public PasswordField repeatPasswordField;
-
     @FXML
     public Button registerButton;
+    @FXML
+    public Button logInButton;
 
     private AuthenticationService authenticationService;
     AlertManager alertManager = AlertManager.getInstance();
     SceneManager sceneManager = SceneManager.getInstance();
 
-    @FXML
     public void initialize() {
         try {
             UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
@@ -45,7 +40,7 @@ public class RegistrationController {
     }
 
     @FXML
-    public void onRegisterButton(ActionEvent actionEvent) throws IOException {
+    public void onRegisterButton(ActionEvent actionEvent) {
         if (authenticationService == null) {
             alertManager.showError( "System Error",
                     "System initialization failed. Please restart the application.");
@@ -57,8 +52,7 @@ public class RegistrationController {
         String repeatPassword = repeatPasswordField.getText();
 
         try {
-            // Wywołanie logiki rejestracji w serwisie
-            User newUser = authenticationService.register(username, password, repeatPassword);
+            authenticationService.register(username, password, repeatPassword);
             alertManager.showInfo( "Success",
                     "Registration successful! Please log in with your new account.");
             sceneManager.switchToLoginScene(actionEvent);
@@ -70,12 +64,8 @@ public class RegistrationController {
                     "Could not connect to database. Please try again later.");
         }
     }
-
-    public void onLoginButton(ActionEvent event) throws IOException {
-        try {
-            sceneManager.switchToLoginScene(event);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @FXML
+    public void onLoginButton(ActionEvent event) {
+        sceneManager.switchToLoginScene(event);
     }
 }

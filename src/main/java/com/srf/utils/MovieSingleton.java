@@ -3,7 +3,7 @@ package com.srf.utils;
 import com.srf.models.Movie;
 
 public class MovieSingleton {
-    private static MovieSingleton instance;
+    private static final MovieSingleton instance;
 
     private Movie movie;
     private boolean AddedRating = false;

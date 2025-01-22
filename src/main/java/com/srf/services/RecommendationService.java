@@ -27,6 +27,13 @@ public class RecommendationService {
         this.recommendationsCache = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Tworzy asynchroniczne Task generowania rekomendacji dla danego użytkownika.
+     * @param userId ID użytkownika, dla którego generowane są rekomendacje.
+     * @param k liczba wymiarów w rozkładzie SVD.
+     * @return obiekt Task zawierający listę rekomendowanych filmów.
+     */
+
     public Task<List<Movie>> generateRecommendationsAsync(int userId, int k) {
         return new Task<>() {
             @Override
@@ -123,6 +130,12 @@ public class RecommendationService {
         };
     }
 
+    /**
+     * Przygotowuje macierz ocen na podstawie listy ocen i zestawu prawidłowych ID filmów.
+     * @param ratings lista ocen.
+     * @param validMovieIds zestaw prawidłowych ID filmów.
+     * @return dwuwymiarowa tablica reprezentująca macierz ocen.
+     */
 
     private double[][] prepareRatingMatrix(List<Rating> ratings, Set<Integer> validMovieIds) {
         Map<Integer, Integer> movieIdToIndex = new HashMap<>();
@@ -152,6 +165,15 @@ public class RecommendationService {
 
         return ratingMatrix;
     }
+
+    /**
+     * Generuje listę rekomendacji filmów dla danego użytkownika na podstawie przewidywanych ocen.
+     * @param userId ID użytkownika.
+     * @param predictedRatings przewidywane oceny.
+     * @param originalRatings oryginalne oceny.
+     * @param validMovieIds lista prawidłowych ID filmów.
+     * @return lista obiektów MovieRecommendation zawierających rekomendacje.
+     */
 
     private List<MovieRecommendation> generateRecommendations(
             int userId,

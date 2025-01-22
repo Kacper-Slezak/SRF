@@ -5,12 +5,12 @@ package com.srf.models;
  * Tagi są używane do kategoryzacji i lepszego dopasowania rekomendacji.
  */
 
-public class Links {
+public class IMDb {
     private static int movieId;
     private static int imdbId;
     private int tmdbId;
 
-    public Links(int movieId, int imdbId) {
+    public IMDb(int movieId, int imdbId) {
         this.movieId = movieId;
         this.imdbId = imdbId;
         this.tmdbId = tmdbId;
@@ -22,7 +22,7 @@ public class Links {
     }
 
     public void setMovieId(int movieId) {
-        Links.movieId = movieId;
+        IMDb.movieId = movieId;
     }
 
     public static int getImdbId() {return imdbId;}

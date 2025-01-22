@@ -2,13 +2,13 @@ package com.srf.controllers;
 
 import com.srf.dao.MovieDAO;
 import com.srf.dao.RatingDAO;
-import com.srf.dao.imdbDAO;
+import com.srf.dao.IMDbDAO;
 import com.srf.models.Movie;
 import com.srf.models.User;
 import com.srf.services.RatingService;
 import com.srf.services.RecommendationService;
 import com.srf.services.SearchService;
-import com.srf.services.imdbService;
+import com.srf.services.IMDbService;
 import com.srf.utils.*;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -26,7 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 
 import javafx.event.ActionEvent;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -78,8 +77,8 @@ public class HomeController {
         try {
             ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
             MovieDAO movieDAO = new MovieDAO(DatabaseConnection.getConnection());
-            imdbDAO imdbDAO = new imdbDAO(DatabaseConnection.getConnection());
-            imdbService imdbService = new imdbService(imdbDAO);
+            IMDbDAO imdbDAO = new IMDbDAO(DatabaseConnection.getConnection());
+            IMDbService imdbService = new IMDbService(imdbDAO);
             recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
             ratingService = new RatingService(ratingDAO);

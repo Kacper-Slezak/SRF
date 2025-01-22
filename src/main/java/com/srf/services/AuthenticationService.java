@@ -68,9 +68,6 @@ public class AuthenticationService {
         }
     }
 
-    public void logout(String sessionId) {
-        activeSessions.remove(sessionId);
-    }
 
     public Optional<User> getCurrentUser(String sessionId) {
         return Optional.ofNullable(activeSessions.get(sessionId));

@@ -1,15 +1,15 @@
 package com.srf.dao;
 
-import com.srf.models.Links;
+import com.srf.models.IMDb;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class imdbDAO {
+public class IMDbDAO {
     private Connection connection;
-    public imdbDAO(Connection connection) {
+    public IMDbDAO(Connection connection) {
         this.connection = connection;
     }
 
@@ -37,15 +37,15 @@ public class imdbDAO {
     /**
      * Dodaje nowy rekord IMDb do bazy danych.
      *
-     * @param link Obiekt Links reprezentujący nowy rekord.
+     * @param link Obiekt IMDb reprezentujący nowy rekord.
      * @return true, jeśli operacja się powiodła; false w przeciwnym razie.
      * @throws SQLException w przypadku problemu z bazą danych.
      */
-    public boolean addImdbLink(Links link) throws SQLException {
+    public boolean addImdbLink(IMDb link) throws SQLException {
         String query = "INSERT INTO links (movieId, imdbId) VALUES (?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, Links.getMovieId());
-            statement.setInt(2, Links.getImdbId());
+            statement.setInt(1, IMDb.getMovieId());
+            statement.setInt(2, IMDb.getImdbId());
             return statement.executeUpdate() > 0;
         }
     }

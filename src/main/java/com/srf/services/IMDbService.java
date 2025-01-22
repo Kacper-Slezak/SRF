@@ -1,14 +1,14 @@
 package com.srf.services;
-import com.srf.dao.imdbDAO;
+import com.srf.dao.IMDbDAO;
 
 import java.sql.SQLException;
 
 
-public class imdbService {
-    private static imdbDAO imdbDAO = null;
+public class IMDbService {
+    private static IMDbDAO imdbDAO = null;
 
-    public imdbService(imdbDAO imdbDAO) {
-        imdbService.imdbDAO = imdbDAO;
+    public IMDbService(IMDbDAO imdbDAO) {
+        IMDbService.imdbDAO = imdbDAO;
     }
 
     public static String fetchImdbUrl(int movieId) {

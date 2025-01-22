@@ -39,7 +39,7 @@ public class RegistrationController {
             UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
             this.authenticationService = new AuthenticationService(userDAO);
         } catch (SQLException e) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Database Error",
+            alertManager.showError( "Database Error",
                     "Could not connect to database. Please try again later.");
         }
     }
@@ -47,7 +47,7 @@ public class RegistrationController {
     @FXML
     public void onRegisterButton(ActionEvent actionEvent) throws IOException {
         if (authenticationService == null) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "System Error",
+            alertManager.showError( "System Error",
                     "System initialization failed. Please restart the application.");
             return;
         }
@@ -59,14 +59,14 @@ public class RegistrationController {
         try {
             // Wywołanie logiki rejestracji w serwisie
             User newUser = authenticationService.register(username, password, repeatPassword);
-            alertManager.showAlert(Alert.AlertType.INFORMATION, "Success",
+            alertManager.showInfo( "Success",
                     "Registration successful! Please log in with your new account.");
             sceneManager.switchToLoginScene(actionEvent);
 
         } catch (IllegalArgumentException e) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Registration Error", e.getMessage());
+            alertManager.showError( "Registration Error", e.getMessage());
         } catch (SQLException e) {
-            alertManager.showAlert(Alert.AlertType.ERROR, "Database Error",
+            alertManager.showError( "Database Error",
                     "Could not connect to database. Please try again later.");
         }
     }

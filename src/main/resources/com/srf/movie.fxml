@@ -7,12 +7,12 @@
 <?import org.controlsfx.control.*?>
 
 <HBox alignment="CENTER" prefWidth="1280" spacing="5.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.MovieController">
-    <Label fx:id="MovieIndexLabel" contentDisplay="CENTER" prefWidth="40.0" text="nr.">
+    <Label fx:id="MovieIndexLabel" contentDisplay="CENTER" minWidth="-Infinity" prefWidth="40.0" text="nr.">
         <font>
             <Font name="System Bold" size="18.0" />
         </font></Label>
     <VBox>
-        <Hyperlink fx:id="TitleHyperlink" text="Movie Title">
+        <Hyperlink fx:id="TitleHyperlink" text="Movie Title" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font></Hyperlink>

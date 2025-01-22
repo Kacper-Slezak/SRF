@@ -1,5 +1,6 @@
 package com.srf.controllers;
 
+import com.srf.dao.MovieDAO;
 import com.srf.dao.RatingDAO;
 import com.srf.models.Movie;
 import com.srf.services.RatingService;
@@ -65,7 +66,6 @@ public class movieCreatorController {
     }
 
     public void onCreateButton(ActionEvent event) {
-        int ID = getID();
         String title = titleTextField.getText();
         String genres = getGenres();
         String IMDblink = IMDbLinkTextField.getText();

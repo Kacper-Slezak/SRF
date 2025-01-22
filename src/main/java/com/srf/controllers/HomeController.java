@@ -129,7 +129,7 @@ public class HomeController {
         if (recommendationsList.isEmpty() || movieSingleton.getAddedRating()) {
             recommendationService.invalidateCache(currentUser.getId());
             setLoadingCursor(true);
-            Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
+            Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 50);
 
             recommendedMoviesTask.setOnSucceeded(event -> {
                 setLoadingCursor(false);

@@ -3,8 +3,12 @@ class User {
     + userId: int
     + username: String
     + password: String
-    + getUserId(): int
+    + sessionID: String
+    + getId(): int
+    + setId(): int
     + getUsername(): String
+    + setUsername(): String
+    + getPasswordHash(): String
     + setPassword(password: String): void
 }
 
@@ -19,6 +23,8 @@ class SearchService {
 
 class RecommendationService {
     + generateRecommendationsAsync(userId: int, limit: int): List<Movie>
+    + prepareRatingMatrix() double ratingMatrix
+    + generateRecommendations(userID: int, double predictedRating, double originalRating): List<MovieRecommendations> finalRecomendations
 }
 
 class MovieController {
@@ -42,8 +48,17 @@ class RegistrationController {
 
 class AuthenticationService {
     + login(username: String, password: String): User
-    + register(username: String, password: String, confirmPassword: String): void
-    + checkUsernameAvailability(username: String): boolean
+    + register(username: String, password: String, repeatPassword: String): void
+    + validateLoginData(username: String, password: String): boolean
+    + getCurrentUser(sessionID: String)
+    + validateLoginData(username: String, password: String, repeatPassword: String): boolean
+}
+
+class SVDRecommender {
+    + computeSVD(ratings: double , k: int)
+    + validateInput(double ratings)
+    + calculateRowMeans(ratings: double, numUsers: int, numMovies: int)
+    + simpleMatrix(ratings: double, rowMeans: double, numUsers: int, numMovies: int)
 }
 
 class MovieSingleton {
@@ -62,13 +77,19 @@ class MovieDAO {
 
 class UserDAO {
     + findUserByUsername(username: String): User
-    + createUser(username: String, password: String): void
-    + checkUsernameAvailability(username: String): boolean
+    + addUser(User: user): void
+    + saveUser(User: user): void
 }
 
 class RatingDAO {
-    + saveRating(userId: int, movieId: int, rating: int): void
+    + addRating(Rating: rating): void
     + findRating(userId: int, movieId: int): Rating
+    + updateRating(Rating: rating): void
+}
+
+class IMDbDAO {
+    + getImdbIdByMovieId(movieId: int)
+    + addImdbLink(IMDb: link)
 }
 
 class RatingService {
@@ -93,31 +114,39 @@ class DatabaseConnection {
 }
 
 class Movie {
-    + movieId: int
+    + Id: int
     + title: String
-    + description: String
-    + rating: float
-    + getDetails(): String
+    + genre: String
+    + getId(): int
+    + setId(): int
+    + getTitle(): String
+    + setTitle(): String
+    + getGenre(): String
+    + setGenre(): String
 }
 
 class Rating {
-    + ratingId: int
+    + rating: double
     + userId: int
     + movieId: int
-    + rating: int
-    + getRatingValue(): int
+    + getMovieId(): int
+    + setMovieId(): int
+    + getUserId(): int
+    + setUserId(): int
+    + getRating(): double
+    + setRating(): double
 }
 
-User "1" -- "1" UserSingleton
-Movie "1" -- "1" MovieSingleton
-HomeController "1" -- "1" SearchService
-HomeController "1" -- "1" RecommendationService
-MovieController "1" -- "1" MovieSingleton
-MovieController "1" -- "1" imdbService
-RecommendationService "1" -- "1" RatingDAO
-RecommendationService "1" -- "1" MovieDAO
-AuthenticationService "1" -- "1" UserDAO
-RatingService "1" -- "1" RatingDAO
-movieCreatorController "1" -- "1" RatingService
-movieCreatorController "1" -- "1" MovieSingleton
+User  --  UserSingleton
+Movie  --  MovieSingleton
+HomeController  --  SearchService
+HomeController  --  RecommendationService
+MovieController  --  MovieSingleton
+MovieController  --  imdbService
+RecommendationService  --  RatingDAO
+RecommendationService  --  MovieDAO
+AuthenticationService  --  UserDAO
+RatingService  --  RatingDAO
+movieCreatorController  --  RatingService
+movieCreatorController  --  MovieSingleton
 @enduml

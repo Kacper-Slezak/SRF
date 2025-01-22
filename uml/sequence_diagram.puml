@@ -19,13 +19,15 @@ participant DatabaseConnection
 participant MovieSingleton
 participant UserSingleton
 
-
-    User -> HomeController : Search (query)
+== User Search Flow ==
+User -> HomeController : Search (query)
 HomeController -> SearchService : searchMovies(query)
 SearchService -> MovieDAO : getMovies(query)
 MovieDAO --> SearchService : List<Movie>
 SearchService --> HomeController : List<Movie>
 HomeController -> User : Display movies
+
+== User Recommendation Flow ==
 
 User -> HomeController : Generate Recommendations
 HomeController -> RecommendationService : generateRecommendationsAsync(userId, limit)

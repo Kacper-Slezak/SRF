@@ -10,16 +10,24 @@ Funkcjonalności
 Struktura projektu
 Projekt jest zorganizowany w następujący sposób:
 
-src/main/java/com/srf
+->src/main/java/com/srf
 
-app: Główna część aplikacji, w której znajduje się klasa uruchomieniowa.
+--> app: Główna część aplikacji, w której znajduje się klasa uruchomieniowa.
 controllers: Klasy kontrolerów zarządzających logiką aplikacji. Odpowiadają za obsługę interakcji użytkownika.
-dao: Warstwa dostępu do danych, odpowiedzialna za interakcję z bazą danych.
-models: Definicje modeli danych wykorzystywanych w aplikacji, takich jak filmy czy użytkownicy.
-services: Logika biznesowa aplikacji, implementacja algorytmu SVD oraz innych funkcji związanych z rekomendacjami.
-utils: Narzędzia pomocnicze, np. klasy do obsługi danych czy logowania.
-src/main/resources
 
-com/srf: Dodatkowe zasoby używane w aplikacji, np. pliki konfiguracyjne.
-db: Zasoby bazy danych, takie jak pliki CSV lub inne dane źródłowe.
-uml: Diagramy UML przedstawiające strukturę i działanie aplikacji.
+--> dao: Warstwa dostępu do danych, odpowiedzialna za interakcję z bazą danych.
+
+-->models: Definicje modeli danych wykorzystywanych w aplikacji, takich jak filmy czy użytkownicy.
+
+-->services: Logika biznesowa aplikacji, implementacja algorytmu SVD oraz innych funkcji związanych 
+z rekomendacjami.
+
+-->utils: Narzędzia pomocnicze, np. klasy do obsługi danych czy logowania.
+
+->src/main/resources
+
+-->com/srf: Dodatkowe zasoby używane w aplikacji, np. pliki konfiguracyjne.
+
+-->db: Zasoby bazy danych, takie jak pliki CSV lub inne dane źródłowe.
+
+-->uml: Diagramy UML przedstawiające strukturę i działanie aplikacji.

@@ -1,0 +1,123 @@
+@startuml
+class User {
+    + userId: int
+    + username: String
+    + password: String
+    + getUserId(): int
+    + getUsername(): String
+    + setPassword(password: String): void
+}
+
+class HomeController {
+    + search(query: String): List<Movie>
+    + generateRecommendations(userId: int, limit: int): List<Movie>
+}
+
+class SearchService {
+    + searchMovies(query: String): List<Movie>
+}
+
+class RecommendationService {
+    + generateRecommendationsAsync(userId: int, limit: int): List<Movie>
+}
+
+class MovieController {
+    + selectMovie(movieId: int): Movie
+    + saveRating(userId: int, movieId: int, rating: int): void
+    + fetchImdbUrl(movieId: int): String
+}
+
+class movieCreatorController {
+    + setMovie(newMovie: Movie): void
+    + saveRating(userId: int, movieId: int, rating: int): void
+}
+
+class LoginController {
+    + login(username: String, password: String): void
+}
+
+class RegistrationController {
+    + register(username: String, password: String, confirmPassword: String): void
+}
+
+class AuthenticationService {
+    + login(username: String, password: String): User
+    + register(username: String, password: String, confirmPassword: String): void
+    + checkUsernameAvailability(username: String): boolean
+}
+
+class MovieSingleton {
+    + getMovie(): Movie
+    + setMovie(newMovie: Movie): void
+}
+
+class UserSingleton {
+    + getUser(): User
+}
+
+class MovieDAO {
+    + getMovies(query: String): List<Movie>
+    + getMoviesByRatings(ratings: List<Rating>): List<Movie>
+}
+
+class UserDAO {
+    + findUserByUsername(username: String): User
+    + createUser(username: String, password: String): void
+    + checkUsernameAvailability(username: String): boolean
+}
+
+class RatingDAO {
+    + saveRating(userId: int, movieId: int, rating: int): void
+    + findRating(userId: int, movieId: int): Rating
+}
+
+class RatingService {
+    + saveRating(userId: int, movieId: int, rating: int): void
+}
+
+class imdbService {
+    + fetchImdbUrl(movieId: int): String
+}
+
+class AlertManager {
+    + showMessage(message: String): void
+}
+
+class SceneManager {
+    + switchToHomeScene(): void
+    + switchToLoginScene(): void
+}
+
+class DatabaseConnection {
+    + getConnection(): Connection
+}
+
+class Movie {
+    + movieId: int
+    + title: String
+    + description: String
+    + rating: float
+    + getDetails(): String
+}
+
+class Rating {
+    + ratingId: int
+    + userId: int
+    + movieId: int
+    + rating: int
+    + getRatingValue(): int
+}
+
+User "1" -- "1" UserSingleton
+Movie "1" -- "1" MovieSingleton
+HomeController "1" -- "1" SearchService
+HomeController "1" -- "1" RecommendationService
+MovieController "1" -- "1" MovieSingleton
+MovieController "1" -- "1" imdbService
+RecommendationService "1" -- "1" RatingDAO
+RecommendationService "1" -- "1" MovieDAO
+AuthenticationService "1" -- "1" UserDAO
+RatingService "1" -- "1" RatingDAO
+movieCreatorController "1" -- "1" RatingService
+movieCreatorController "1" -- "1" MovieSingleton
+@enduml

@@ -1,8 +1,11 @@
 package com.srf.controllers;
 
+import com.srf.dao.MovieDAO;
 import com.srf.dao.RatingDAO;
+import com.srf.models.Movie;
 import com.srf.services.RatingService;
 import com.srf.utils.AlertManager;
+import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.SceneManager;
 import javafx.collections.ObservableList;
@@ -14,6 +17,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.Rating;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class movieCreatorController {
     @FXML
@@ -36,7 +40,7 @@ public class movieCreatorController {
     SceneManager sceneManager = SceneManager.getInstance();
     RatingService ratingService;
 
-    public void initialize() {
+    public void initialize() throws SQLException {
         String [] allGenres = {
                 "Action",
                 "Adventure",
@@ -55,6 +59,7 @@ public class movieCreatorController {
                 "IMAX"
         };
         genresCheckComboBox.getItems().addAll(allGenres);
+        ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
         ratingService = new RatingService(ratingDAO);
     }
 
@@ -63,9 +68,23 @@ public class movieCreatorController {
         String title = titleTextField.getText();
         String genres = getGenres();
         String IMDblink = IMDbLinkTextField.getText();
-        writeMovie(ID, title, genres, IMDblink);
+
+        Movie movie = new Movie(0, title, genres); // ID ustawiamy na 0, bo zostanie wygenerowane w bazie
+        int movieId;
+
+        try {
+            // Używamy połączenia z bazy danych z DatabaseConnection
+            MovieDAO movieDAO = new MovieDAO(DatabaseConnection.getConnection());
+            movieId = movieDAO.addMovie(movie); // Dodanie filmu i uzyskanie ID
+        } catch (SQLException e) {
+            alertManager.showError("Błąd", "Nie udało się dodać filmu: " + e.getMessage());
+            return;
+        }
+
+        // Pobieranie oceny z kontrolki i zapisywanie jej
         Double rating = movieRating.getRating();
-        ratingService.saveRating(data.getUser().getId(), ID, rating, null);
+        ratingService.saveRating(UserSingleton.getInstance().getUser().getId(), movieId, rating, null);
+
         try {
             sceneManager.switchToHomeScene(event);
         } catch (IOException e) {

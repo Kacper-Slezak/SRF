@@ -30,13 +30,46 @@ public class MovieDAO {
         return movies;
     }
 
-    public void addMovie(Movie movie) throws SQLException {
+    public int addMovie(Movie movie) throws SQLException {
         String sql = "INSERT INTO movies (title, genre) VALUES (?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, movie.getTitle());
             statement.setString(2, movie.getGenre());
             statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Pobranie ID nowego filmu
+                } else {
+                    throw new SQLException("Nie udało się uzyskać ID nowego filmu.");
+                }
+            }
         }
+    }
+
+    public List<Movie> searchMoviesByQuery(String sqlQuery, String[] keywords) throws SQLException {
+        List<Movie> movies = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+            int paramIndex = 1;
+            for (String keyword : keywords) {
+                String keywordPattern = "%" + keyword + "%";
+                preparedStatement.setString(paramIndex++, keywordPattern); // Dla tytułu
+                preparedStatement.setString(paramIndex++, keywordPattern); // Dla gatunku
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Movie movie = new Movie(0,"title","genre");
+                    movie.setId(resultSet.getInt("id"));
+                    movie.setTitle(resultSet.getString("title"));
+                    movie.setGenre(resultSet.getString("genre"));
+                    movies.add(movie);
+                }
+            }
+        }
+
+        return movies;
     }
 }
 

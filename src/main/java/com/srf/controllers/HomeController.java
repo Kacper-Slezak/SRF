@@ -62,7 +62,7 @@ public class HomeController {
 
     private boolean previousWasRecommend = false;
     private int currentStartIndex = 0;
-    private static final int maxSearchResult = 250;
+
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AlertManager alertManager = AlertManager.getInstance();
@@ -131,7 +131,6 @@ public class HomeController {
             recommendedMoviesTask.setOnSucceeded(event -> {
                 movieSingleton.setAddedRating(false);
                 recommendationsList = recommendedMoviesTask.getValue();
-                currentStartIndex = 0; // Reset indeksu
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
                 moviesDescription.setText("Your personal recommendations:");
                 refresh(recommendationsList);

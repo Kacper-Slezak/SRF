@@ -1,10 +1,11 @@
 package com.srf.controllers;
 
-import com.srf.dao.MovieDAO;
 import com.srf.dao.RatingDAO;
 import com.srf.models.Movie;
 import com.srf.services.RatingService;
 import com.srf.utils.AlertManager;
+import com.srf.utils.MovieSingleton;
+import com.srf.utils.DatabaseConnection;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.SceneManager;
@@ -92,14 +93,7 @@ public class movieCreatorController {
         }
     }
 
-    private void writeMovie(int id, String title, String genres, String imDblink) {
-        //TODO wpisanie do DB
-    }
 
-    private int getID() {
-        //TODO znalezienie nieuzywanego ID
-        return 0;
-    }
 
     private String getGenres() {
         ObservableList list = genresCheckComboBox.getCheckModel().getCheckedItems();

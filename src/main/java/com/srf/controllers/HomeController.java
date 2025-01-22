@@ -13,6 +13,8 @@ import com.srf.utils.*;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -24,6 +26,7 @@ import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 
 import javafx.event.ActionEvent;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -75,7 +78,7 @@ public class HomeController {
         try {
             ratingDAO = new RatingDAO(DatabaseConnection.getConnection());
             MovieDAO movieDAO = new MovieDAO(DatabaseConnection.getConnection());
-            imdbDAO imdbDAO = new imdbDAO   (DatabaseConnection.getConnection());
+            imdbDAO imdbDAO = new imdbDAO(DatabaseConnection.getConnection());
             imdbService imdbService = new imdbService(imdbDAO);
             recommendationService = new RecommendationService(ratingDAO, movieDAO);
             searchService = new SearchService(movieDAO);
@@ -126,9 +129,11 @@ public class HomeController {
     private void recommend() {
         if (recommendationsList.isEmpty() || movieSingleton.getAddedRating()) {
             recommendationService.invalidateCache(currentUser.getId());
+            setLoadingCursor(true);
             Task<List<Movie>> recommendedMoviesTask = recommendationService.generateRecommendationsAsync(currentUser.getId(), 20);
 
             recommendedMoviesTask.setOnSucceeded(event -> {
+                setLoadingCursor(false);
                 movieSingleton.setAddedRating(false);
                 recommendationsList = recommendedMoviesTask.getValue();
                 previousWasRecommend = true; // Oznacz, że wyświetlamy rekomendacje
@@ -137,6 +142,7 @@ public class HomeController {
             });
 
             recommendedMoviesTask.setOnFailed(event -> {
+                setLoadingCursor(false);
                 Platform.runLater(() ->
                         alertManager.showError(
                                 "Błąd rekomendacji",
@@ -147,7 +153,7 @@ public class HomeController {
 
             new Thread(recommendedMoviesTask).start();
         } else {
-            alertManager.showInfo("Generation error", "Rate a movie to generate new recommendations");
+            alertManager.showError("Generation error", "Rate a movie to generate new recommendations");
         }
     }
     @FXML
@@ -181,6 +187,15 @@ public class HomeController {
                     "Refresh Error",
                     "Failed to refresh results: " + e.getMessage()
             );
+        }
+    }
+
+    public void setLoadingCursor(boolean isLoading) {
+        Scene currentScene = MainVbox.getScene();
+        if (isLoading) {
+            currentScene.setCursor(Cursor.WAIT);  // Kursor ładowania
+        } else {
+            currentScene.setCursor(Cursor.DEFAULT);  // Normalny kursor
         }
     }
 

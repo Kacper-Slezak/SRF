@@ -87,7 +87,7 @@ public class RecommendationService {
 
                     // Obliczanie SVD
                     System.out.println("Computing SVD...");
-                    int effectiveK = Math.min(k, 20);
+                    int effectiveK = Math.min(k, 50);
                     double[][] predictedRatings = SVDRecommender.computeSVD(ratingMatrix, effectiveK);
                     System.out.println("SVD computation completed");
 

@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 <?import org.controlsfx.control.*?>
 
-<BorderPane prefHeight="480" prefWidth="640" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.movieCreatorController">
+<BorderPane prefHeight="480" prefWidth="640" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.srf.controllers.MovieCreatorController">
       <center>
           <VBox maxWidth="-Infinity" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
               <padding>

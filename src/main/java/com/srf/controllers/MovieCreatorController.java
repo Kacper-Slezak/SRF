@@ -5,8 +5,6 @@ import com.srf.dao.RatingDAO;
 import com.srf.models.Movie;
 import com.srf.services.RatingService;
 import com.srf.utils.AlertManager;
-import com.srf.utils.MovieSingleton;
-import com.srf.utils.DatabaseConnection;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.SceneManager;
@@ -21,7 +19,7 @@ import org.controlsfx.control.Rating;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class movieCreatorController {
+public class MovieCreatorController {
     @FXML
     public TextField titleTextField;
     @FXML

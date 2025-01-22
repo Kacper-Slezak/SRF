@@ -63,7 +63,4 @@ public class RatingService {
         executorService.submit(task);
     }
 
-    public void shutdown() {
-        executorService.shutdown();
-    }
 }

@@ -23,7 +23,6 @@ public class SceneManager {
             Parent root = FXMLLoader.load(getClass().getResource(sceneName));
 
             stage.setScene(new Scene(root, 1280, 720));
-            stage.getScene().getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             currentScene = stage.getScene();
 
             stage.setTitle("SRF");

@@ -9,6 +9,7 @@ import java.util.List;
 
 public class SearchService {
     private final MovieDAO movieDAO;
+    private static final int maxSearchResult = 250;
 
     public SearchService(MovieDAO movieDAO) {
         this.movieDAO = movieDAO;
@@ -21,26 +22,24 @@ public class SearchService {
      * @return Lista pasujących filmów.
      */
     public List<Movie> searchMovies(String query) {
-        List<Movie> matchingMovies = new ArrayList<>();
+        List<Movie> matchingMovies = null;
         try {
-            // Pobierz wszystkie filmy z DAO
-            List<Movie> allMovies = movieDAO.getAllMovies();
-
-            // Rozdziel zapytanie na słowa kluczowe
+            // Rozdziel zapytanie na słowa kluczowe i sformatuj jako warunki SQL
             String[] keywords = query.toLowerCase().split(" ");
+            StringBuilder sqlQueryBuilder = new StringBuilder("SELECT * FROM movies WHERE ");
 
-            // Filtruj filmy według tytułu lub gatunku
-            for (Movie movie : allMovies) {
-                String title = movie.getTitle().toLowerCase();
-                String genre = movie.getGenre().toLowerCase();
-
-                for (String keyword : keywords) {
-                    if (title.contains(keyword) || genre.contains(keyword)) {
-                        matchingMovies.add(movie);
-                        break; // Unikaj dodawania tego samego filmu wielokrotnie
-                    }
+            for (int i = 0; i < keywords.length; i++) {
+                if (i > 0) {
+                    sqlQueryBuilder.append(" OR ");
                 }
+                sqlQueryBuilder.append("(LOWER(title) LIKE ? OR LOWER(genre) LIKE ?)");
             }
+            sqlQueryBuilder.append(" LIMIT " + maxSearchResult);
+
+            String sqlQuery = sqlQueryBuilder.toString();
+
+            // Wywołaj DAO, przekazując zapytanie SQL oraz parametry
+            matchingMovies = movieDAO.searchMoviesByQuery(sqlQuery, keywords);
         } catch (SQLException e) {
             System.err.println("Błąd podczas wyszukiwania filmów: " + e.getMessage());
         }

@@ -1,0 +1,160 @@
+@startuml
+class User {
+    + userId: int
+    + username: String
+    + password: String
+    + sessionID: String
+    + getId(): int
+    + setId(id: int): void
+    + getUsername(): String
+    + setUsername(username: String): void
+    + getPasswordHash(): String
+    + setPassword(password: String): void
+}
+
+class HomeController {
+    + search(query: String): List<Movie>
+    + generateRecommendations(userId: int, limit: int): List<Movie>
+}
+
+class SearchService {
+    + searchMovies(query: String): List<Movie>
+}
+
+class RecommendationService {
+    + generateRecommendationsAsync(userId: int, limit: int): List<Movie>
+    + prepareRatingMatrix(): double[][]
+    + generateRecommendations(userId: int, predictedRating: double, originalRating: double): List<MovieRecommendation>
+}
+
+class MovieController {
+    + selectMovie(movieId: int): Movie
+    + saveRating(userId: int, movieId: int, rating: int): void
+    + fetchImdbUrl(movieId: int): String
+}
+
+class MovieCreatorController {
+    + setMovie(newMovie: Movie): void
+    + saveRating(userId: int, movieId: int, rating: int): void
+}
+
+class LoginController {
+    + login(username: String, password: String): void
+}
+
+class RegistrationController {
+    + register(username: String, password: String, confirmPassword: String): void
+}
+
+class AuthenticationService {
+    + login(username: String, password: String): User
+    + register(username: String, password: String, repeatPassword: String): void
+    + validateLoginData(username: String, password: String): boolean
+    + getCurrentUser(sessionID: String): User
+    + validateRegistrationData(username: String, password: String, repeatPassword: String): boolean
+}
+
+class SVDRecommender {
+    + computeSVD(ratings: double[][], k: int): void
+    + validateInput(ratings: double[][]): void
+    + calculateRowMeans(ratings: double[][], numUsers: int, numMovies: int): double[]
+    + simpleMatrix(ratings: double[][], rowMeans: double[], numUsers: int, numMovies: int): double[][]
+}
+
+class MovieSingleton {
+    + getMovie(): Movie
+    + setMovie(newMovie: Movie): void
+}
+
+class UserSingleton {
+    + getUser(): User
+}
+
+class MovieDAO {
+    + getMovies(query: String): List<Movie>
+    + getMoviesByRatings(ratings: List<Rating>): List<Movie>
+}
+
+class UserDAO {
+    + findUserByUsername(username: String): User
+    + addUser(user: User): void
+    + saveUser(user: User): void
+}
+
+class RatingDAO {
+    + addRating(rating: Rating): void
+    + findRating(userId: int, movieId: int): Rating
+    + updateRating(rating: Rating): void
+}
+
+class IMDbDAO {
+    + getImdbIdByMovieId(movieId: int): String
+    + addImdbLink(link: String): void
+}
+
+class RatingService {
+    + saveRating(userId: int, movieId: int, rating: int): void
+}
+
+class IMDbService {
+    + fetchImdbUrl(movieId: int): String
+}
+
+class AlertManager {
+    + showMessage(message: String): void
+}
+
+class SceneManager {
+    + switchToHomeScene(): void
+    + switchToLoginScene(): void
+}
+
+class DatabaseConnection {
+    + getConnection(): Connection
+}
+
+class Movie {
+    + id: int
+    + title: String
+    + genre: String
+    + getId(): int
+    + setId(id: int): void
+    + getTitle(): String
+    + setTitle(title: String): void
+    + getGenre(): String
+    + setGenre(genre: String): void
+}
+
+class Rating {
+    + rating: double
+    + userId: int
+    + movieId: int
+    + getMovieId(): int
+    + setMovieId(movieId: int): void
+    + getUserId(): int
+    + setUserId(userId: int): void
+    + getRating(): double
+    + setRating(rating: double): void
+}
+
+' Relacje UML
+User <|-- UserSingleton
+Movie <|-- MovieSingleton
+HomeController --> SearchService
+HomeController --> RecommendationService
+MovieController --> MovieSingleton
+MovieController --> IMDbService
+IMDbService --> IMDbDAO
+RecommendationService --> RatingDAO
+RecommendationService --> MovieDAO
+RecommendationService --> SVDRecommender
+AuthenticationService --> UserDAO
+RatingService --> RatingDAO
+MovieCreatorController --> RatingService
+MovieCreatorController --> MovieSingleton
+
+' Zależności związane z logowaniem i rejestracją
+LoginController --> AuthenticationService
+RegistrationController --> AuthenticationService
+AuthenticationService --> UserDAO
+@enduml

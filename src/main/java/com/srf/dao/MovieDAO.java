@@ -47,6 +47,31 @@ public class MovieDAO {
         }
     }
 
+    public List<Movie> searchMoviesByQuery(String sqlQuery, String[] keywords) throws SQLException {
+        List<Movie> movies = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+            int paramIndex = 1;
+            for (String keyword : keywords) {
+                String keywordPattern = "%" + keyword + "%";
+                preparedStatement.setString(paramIndex++, keywordPattern); // Dla tytułu
+                preparedStatement.setString(paramIndex++, keywordPattern); // Dla gatunku
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Movie movie = new Movie(0,"title","genre");
+                    movie.setId(resultSet.getInt("id"));
+                    movie.setTitle(resultSet.getString("title"));
+                    movie.setGenre(resultSet.getString("genre"));
+                    movies.add(movie);
+                }
+            }
+        }
+
+        return movies;
+    }
+
 }
 
 

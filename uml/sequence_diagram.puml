@@ -1,0 +1,100 @@
+@startuml
+actor User
+participant HomeController
+participant SearchService
+participant RecommendationService
+participant MovieDAO
+participant LoginController
+participant RegistrationController
+participant MovieController
+participant movieCreatorController
+participant AuthenticationService
+participant RatingService
+participant imdbService
+participant UserDAO
+participant RatingDAO
+participant AlertManager
+participant SceneManager
+participant DatabaseConnection
+participant MovieSingleton
+participant UserSingleton
+
+== User Search Flow ==
+User -> HomeController : Search (query)
+HomeController -> SearchService : searchMovies(query)
+SearchService -> MovieDAO : getMovies(query)
+MovieDAO --> SearchService : List<Movie>
+SearchService --> HomeController : List<Movie>
+HomeController -> User : Display movies
+
+== User Recommendation Flow ==
+
+User -> HomeController : Generate Recommendations
+HomeController -> RecommendationService : generateRecommendationsAsync(userId, limit)
+RecommendationService -> RatingDAO : getRatings(userId)
+RecommendationService -> MovieDAO : getMoviesByRatings(List<Rating>)
+MovieDAO --> RecommendationService : List<Movie>
+RecommendationService --> HomeController : List<Movie>
+HomeController -> User : Display recommended movies
+
+== User Login Flow ==
+User -> LoginController : Enter username and password
+LoginController -> DatabaseConnection : getConnection()
+DatabaseConnection --> LoginController : Connection
+LoginController -> AuthenticationService : login(username, password)
+AuthenticationService -> UserDAO : findUserByUsername(username)
+UserDAO --> AuthenticationService : User or null
+AuthenticationService --> LoginController : User or Exception
+LoginController -> AlertManager : Show success or error message
+LoginController -> SceneManager : switchToHomeScene (on success)
+SceneManager --> LoginController : Acknowledgment
+
+== User Registration Flow ==
+User -> RegistrationController : Enter username, password, and confirm password
+RegistrationController -> DatabaseConnection : getConnection()
+DatabaseConnection --> RegistrationController : Connection
+RegistrationController -> AuthenticationService : register(username, password, confirmPassword)
+AuthenticationService -> UserDAO : checkUsernameAvailability(username)
+UserDAO --> AuthenticationService : Availability status
+AuthenticationService -> UserDAO : createUser(username, password)
+UserDAO --> AuthenticationService : Success or Exception
+AuthenticationService --> RegistrationController : Success or Exception
+RegistrationController -> AlertManager : Show success or error message
+RegistrationController -> SceneManager : switchToLoginScene (on success)
+SceneManager --> RegistrationController : Acknowledgment
+
+== Movie List and Rating Flow ==
+User -> MovieController : Select a movie
+MovieController -> MovieSingleton : getMovie()
+MovieSingleton --> MovieController : Movie object
+MovieController -> DatabaseConnection : getConnection()
+DatabaseConnection --> MovieController : Connection
+MovieController -> RatingDAO : findRating(userID, movieID)
+RatingDAO --> MovieController : Existing Rating or null
+MovieController -> UserSingleton : getUser()
+UserSingleton --> MovieController : User object
+MovieController -> RatingService : saveRating(userID, movieID, rating)
+RatingService -> RatingDAO : saveRating(userID, movieID, rating)
+RatingDAO --> RatingService : Acknowledgment
+RatingService --> MovieController : Acknowledgment
+MovieController -> AlertManager : Show success or error message
+
+== IMDb Link Access ==
+User -> MovieController : Click on IMDb link
+MovieController -> imdbService : fetchImdbUrl(movieID)
+imdbService --> MovieController : IMDb URL
+MovieController -> AlertManager : Show success or error message
+
+== Movie Creation Flow ==
+User -> movieCreatorController : Enter movie details and rating
+movieCreatorController -> DatabaseConnection : getConnection()
+DatabaseConnection --> movieCreatorController : Connection
+movieCreatorController -> MovieSingleton : setMovie(newMovie)
+movieCreatorController -> RatingService : saveRating(userID, movieID, rating)
+RatingService -> RatingDAO : saveRating(userID, movieID, rating)
+RatingDAO --> RatingService : Acknowledgment
+RatingService --> movieCreatorController : Acknowledgment
+movieCreatorController -> SceneManager : switchToHomeScene
+SceneManager --> movieCreatorController : Acknowledgment
+
+@enduml

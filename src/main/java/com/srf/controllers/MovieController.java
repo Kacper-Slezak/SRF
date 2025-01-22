@@ -4,14 +4,12 @@ import com.srf.dao.RatingDAO;
 import com.srf.models.Movie;
 import com.srf.models.User;
 import com.srf.services.RatingService;
-import com.srf.services.imdbService;
+import com.srf.services.IMDbService;
 import com.srf.utils.AlertManager;
 import com.srf.utils.DatabaseConnection;
 import com.srf.utils.UserSingleton;
 import com.srf.utils.MovieSingleton;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import org.controlsfx.control.Rating;
@@ -95,7 +93,7 @@ public class MovieController {
     }
 
     public void onIMDbButton(ActionEvent event) {
-        String url = imdbService.fetchImdbUrl(movieID);
+        String url = IMDbService.fetchImdbUrl(movieID);
         if (url != null) {
             try {
                 java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
